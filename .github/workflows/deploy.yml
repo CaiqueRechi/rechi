@@ -42,6 +42,13 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Prepare public document root
+        run: |
+          mkdir -p .deploy-public
+          cp -a public/. .deploy-public/
+          sed -i "s#__DIR__.'/../vendor/autoload.php'#__DIR__.'/vendor/autoload.php'#" .deploy-public/index.php
+          sed -i "s#__DIR__.'/../bootstrap/app.php'#__DIR__.'/bootstrap/app.php'#" .deploy-public/index.php
+
       - name: Package PHP dependencies
         if: ${{ inputs.upload_vendor }}
         run: |
@@ -74,8 +81,19 @@ jobs:
             **/node_modules/**
             **/vendor/**
             **/.deploy/**
+            **/.deploy-public/**
             .env
             storage/logs/**
             storage/framework/cache/**
             storage/framework/sessions/**
             storage/framework/views/**
+
+      - name: Deploy public document root by FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: .deploy-public/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          state-name: .ftp-deploy-public-state.json
