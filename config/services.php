@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'integrations' => [
+        'encryption_key' => env('APP_SETTINGS_KEY'),
+        'sync_ttl_minutes' => (int) env('INTEGRATION_SYNC_TTL_MINUTES', 10),
+    ],
+
 ];
