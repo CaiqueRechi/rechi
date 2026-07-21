@@ -10,6 +10,7 @@
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "lint:check": "eslint .",
+        "test:background": "node --experimental-strip-types --test tests/Frontend/ProceduralBackground.test.mjs",
         "types:check": "tsc --noEmit"
     },
     "devDependencies": {

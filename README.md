@@ -42,6 +42,12 @@ As configurações ficam disponíveis apenas para administradores em **General s
 
 Os serviços são APIs oficiais e confiáveis, mas continuam sujeitos a indisponibilidade, limites e mudanças dos provedores. Spotify pode exigir uma conta Premium para novos aplicativos; Discord usa somente OAuth e o widget oficial, sem simular presença pessoal por bot.
 
+### Cyber Garden
+
+Em desktops compatíveis, `/alt-tab` carrega dinamicamente um mundo 2D procedural em Canvas 2D. O personagem reage ao ponteiro enquanto chunks determinísticos criam a impressão de um jardim digital infinito. Mobile, redução de movimento e economia de dados usam apenas o fallback estático.
+
+A arquitetura, algoritmos, controles de performance e caminhos de evolução estão documentados em [`docs/CYBER_GARDEN.md`](docs/CYBER_GARDEN.md).
+
 Quando uma conexão ou seu histórico estiver vazio, `/alt-tab` mostra dados artificiais claramente marcados como **demo** e **not connected**. Esses exemplos não são gravados no banco e somem quando dados reais forem sincronizados.
 
 ### Criptografia das credenciais
