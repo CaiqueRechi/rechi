@@ -30,9 +30,10 @@
             }
         </style>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <meta name="theme-color" content="#080a10">
+        <link rel="icon" href="/favicon.ico?v=cyber-garden" sizes="any">
+        <link rel="icon" href="/favicon.svg?v=cyber-garden" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=cyber-garden">
 
         @fonts
 
