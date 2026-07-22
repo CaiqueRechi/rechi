@@ -156,26 +156,29 @@ class IntegrationOAuthController extends Controller
         };
         $data = $response->throw()->json();
 
-        return match ($provider) {
-            IntegrationProvider::Spotify => [
+        if ($provider === IntegrationProvider::Spotify) {
+            return [
                 'id' => (string) Arr::get($data, 'id'),
                 'name' => (string) Arr::get($data, 'display_name'),
                 'avatarUrl' => Arr::get($data, 'images.0.url'),
-            ],
-            IntegrationProvider::WakaTime => [
+            ];
+        }
+
+        if ($provider === IntegrationProvider::WakaTime) {
+            return [
                 'id' => (string) Arr::get($data, 'data.id'),
                 'name' => (string) Arr::get($data, 'data.display_name', Arr::get($data, 'data.username')),
                 'avatarUrl' => Arr::get($data, 'data.photo'),
-            ],
-            IntegrationProvider::Discord => [
-                'id' => (string) Arr::get($data, 'id'),
-                'name' => (string) Arr::get($data, 'global_name', Arr::get($data, 'username')),
-                'avatarUrl' => Arr::get($data, 'avatar')
-                    ? 'https://cdn.discordapp.com/avatars/'.Arr::get($data, 'id').'/'.Arr::get($data, 'avatar').'.png'
-                    : null,
-            ],
-            default => abort(Response::HTTP_UNPROCESSABLE_ENTITY),
-        };
+            ];
+        }
+
+        return [
+            'id' => (string) Arr::get($data, 'id'),
+            'name' => (string) Arr::get($data, 'global_name', Arr::get($data, 'username')),
+            'avatarUrl' => Arr::get($data, 'avatar')
+                ? 'https://cdn.discordapp.com/avatars/'.Arr::get($data, 'id').'/'.Arr::get($data, 'avatar').'.png'
+                : null,
+        ];
     }
 
     private function completeSteamConnection(Request $request, IntegrationConnection $connection): RedirectResponse

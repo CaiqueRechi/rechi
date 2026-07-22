@@ -32,6 +32,10 @@ class UpdateIntegrationConnectionRequest extends FormRequest
             'steam_id' => ['nullable', 'string', 'regex:/^\d{17}$/'],
             'username' => ['nullable', 'string', 'max:255'],
             'guild_id' => ['nullable', 'string', 'regex:/^\d{17,20}$/'],
+            'environment' => ['nullable', Rule::in(['sandbox', 'production'])],
+            'public_key' => ['nullable', 'string', 'max:2048'],
+            'access_token' => ['nullable', 'string', 'max:4096'],
+            'webhook_secret' => ['nullable', 'string', 'max:4096'],
         ];
     }
 }

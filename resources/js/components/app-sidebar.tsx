@@ -1,5 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Settings2, UserPlus } from 'lucide-react';
+import {
+    BookOpen,
+    FolderGit2,
+    LayoutGrid,
+    Package,
+    ReceiptText,
+    Settings2,
+    UserPlus,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,8 +22,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { create as createUser } from '@/routes/users';
 import { index as integrationSettings } from '@/routes/settings/integrations';
+import { create as createUser } from '@/routes/users';
 import type { NavItem } from '@/types';
 
 const footerNavItems: NavItem[] = [
@@ -42,9 +50,19 @@ export function AppSidebar() {
         ...(auth.user.is_admin
             ? [
                   {
-                      title: 'Criar usuário',
+                      title: 'Criar usuario',
                       href: createUser(),
                       icon: UserPlus,
+                  },
+                  {
+                      title: 'Produtos',
+                      href: '/admin/commercial-products',
+                      icon: Package,
+                  },
+                  {
+                      title: 'Pedidos',
+                      href: '/admin/orders',
+                      icon: ReceiptText,
                   },
                   {
                       title: 'General settings',

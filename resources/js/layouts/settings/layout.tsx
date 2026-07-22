@@ -9,6 +9,7 @@ import { edit as editAppearance } from '@/routes/appearance';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import { index as integrationSettings } from '@/routes/settings/integrations';
+import { edit as uploadFilesSettings } from '@/routes/settings/upload-files';
 import type { Auth, NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
@@ -33,7 +34,19 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
     const { auth } = usePage<{ auth: Auth }>().props;
     const visibleSidebarNavItems: NavItem[] = auth.user.is_admin
-        ? [...sidebarNavItems, { title: 'General settings', href: integrationSettings(), icon: null }]
+        ? [
+              ...sidebarNavItems,
+              {
+                  title: 'General settings',
+                  href: integrationSettings(),
+                  icon: null,
+              },
+              {
+                  title: 'Upload files',
+                  href: uploadFilesSettings(),
+                  icon: null,
+              },
+          ]
         : sidebarNavItems;
 
     return (

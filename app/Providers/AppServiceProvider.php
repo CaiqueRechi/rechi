@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Services\Payments\MercadoPagoPaymentGateway;
+use App\Services\Payments\PaymentGatewayInterface;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Date;
@@ -18,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(PaymentGatewayInterface::class, MercadoPagoPaymentGateway::class);
     }
 
     /**

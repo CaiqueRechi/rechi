@@ -4,6 +4,7 @@ use App\Http\Controllers\Settings\IntegrationConnectionController;
 use App\Http\Controllers\Settings\IntegrationOAuthController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
+use App\Http\Controllers\Settings\UploadFileSettingsController;
 /* @chisel-password-confirmation */
 use Illuminate\Auth\Middleware\RequirePassword;
 /* @end-chisel-password-confirmation */
@@ -34,6 +35,10 @@ Route::middleware(['auth', 'active', 'verified'])->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('settings/general/app-keys', [IntegrationConnectionController::class, 'index'])
             ->name('settings.integrations.index');
+        Route::get('settings/general/upload-files', [UploadFileSettingsController::class, 'edit'])
+            ->name('settings.upload-files.edit');
+        Route::put('settings/general/upload-files', [UploadFileSettingsController::class, 'update'])
+            ->name('settings.upload-files.update');
         Route::put('settings/general/app-keys', [IntegrationConnectionController::class, 'update'])
             ->name('settings.integrations.update');
         Route::post('settings/general/app-keys/{provider}/sync', [IntegrationConnectionController::class, 'synchronize'])

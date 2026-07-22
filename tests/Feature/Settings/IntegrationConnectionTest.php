@@ -35,7 +35,7 @@ class IntegrationConnectionTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('settings/general/app-keys')
-                ->has('integrations', 5));
+                ->has('integrations', 6));
     }
 
     public function test_credentials_are_encrypted_and_never_returned_to_inertia(): void

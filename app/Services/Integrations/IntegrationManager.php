@@ -23,9 +23,10 @@ class IntegrationManager
             ->keyBy(fn (IntegrationConnection $connection) => $connection->provider->value);
 
         return collect(IntegrationProvider::cases())
+            ->reject(fn (IntegrationProvider $provider) => $provider === IntegrationProvider::MercadoPago)
             ->mapWithKeys(function (IntegrationProvider $provider) use ($connections): array {
                 $connection = $connections->get($provider->value);
-                $activities = $connection?->activities ?? collect();
+                $activities = $connection instanceof IntegrationConnection ? $connection->activities : collect();
                 $isDemo = ! $connection || $connection->status !== 'connected' || $activities->isEmpty();
 
                 return [$provider->value => [
@@ -50,40 +51,43 @@ class IntegrationManager
             ->all();
     }
 
-    /** @return array<string, mixed> */
+    /** @return list<array<string, mixed>> */
     public function settingsData(): array
     {
         $connections = IntegrationConnection::query()->get()->keyBy(
             fn (IntegrationConnection $connection) => $connection->provider->value,
         );
+        $settings = [];
 
-        return collect(IntegrationProvider::cases())->map(function (IntegrationProvider $provider) use ($connections): array {
+        foreach (IntegrationProvider::cases() as $provider) {
             $connection = $connections->get($provider->value);
-            $credentials = $connection?->credentials ?? [];
+            $credentials = $connection instanceof IntegrationConnection ? $connection->credentials : [];
 
-            return [
+            $settings[] = [
                 'provider' => $provider->value,
                 'label' => $provider->label(),
                 'fields' => collect($provider->fields())->map(fn (string $field) => [
                     'name' => $field,
                     'label' => Str::of($field)->replace('_', ' ')->title()->toString(),
                     'configured' => filled(Arr::get($credentials, $field)),
-                    'secret' => Str::contains($field, ['key', 'secret']),
-                    'value' => Str::contains($field, ['key', 'secret']) ? '' : (string) Arr::get($credentials, $field, ''),
+                    'secret' => Str::contains($field, ['key', 'secret', 'token']),
+                    'value' => Str::contains($field, ['key', 'secret', 'token']) ? '' : (string) Arr::get($credentials, $field, ''),
                 ])->values()->all(),
-                'status' => $connection?->status ?? 'disconnected',
-                'accountName' => $connection?->account_name,
-                'lastSyncedAt' => $connection?->last_synced_at?->toIso8601String(),
-                'lastError' => $connection?->last_error,
+                'status' => $connection instanceof IntegrationConnection ? $connection->status : 'disconnected',
+                'accountName' => $connection instanceof IntegrationConnection ? $connection->account_name : null,
+                'lastSyncedAt' => $connection instanceof IntegrationConnection ? $connection->last_synced_at?->toIso8601String() : null,
+                'lastError' => $connection instanceof IntegrationConnection ? $connection->last_error : null,
                 'automaticConnection' => $provider->supportsAutomaticConnection(),
                 'canConnect' => $connection !== null && match ($provider) {
                     IntegrationProvider::Steam => true,
-                    IntegrationProvider::LastFm => false,
+                    IntegrationProvider::LastFm, IntegrationProvider::MercadoPago => false,
                     default => filled(Arr::get($credentials, 'client_id')) && filled(Arr::get($credentials, 'client_secret')),
                 },
                 'callbackUrl' => route('settings.integrations.callback', $provider),
             ];
-        })->values()->all();
+        }
+
+        return $settings;
     }
 
     /** @param array<string, mixed> $input */
@@ -162,6 +166,7 @@ class IntegrationManager
             IntegrationProvider::LastFm => $this->fetchLastFm($connection),
             IntegrationProvider::WakaTime => $this->fetchWakaTime($connection),
             IntegrationProvider::Discord => $this->fetchDiscord($connection),
+            IntegrationProvider::MercadoPago => [],
         };
     }
 
@@ -170,18 +175,23 @@ class IntegrationManager
     {
         $response = $this->client()->withToken($this->validAccessToken($connection))
             ->get('https://api.spotify.com/v1/me/player/recently-played', ['limit' => 12])->throw();
+        $activities = [];
 
-        return collect($response->json('items', []))->map(fn (array $item) => [
-            'externalId' => (string) Arr::get($item, 'track.id', Str::uuid()),
-            'activityType' => 'track',
-            'payload' => [
-                'title' => Arr::get($item, 'track.name'),
-                'subtitle' => collect(Arr::get($item, 'track.artists', []))->pluck('name')->join(', '),
-                'imageUrl' => Arr::get($item, 'track.album.images.0.url'),
-                'url' => Arr::get($item, 'track.external_urls.spotify'),
-            ],
-            'occurredAt' => Carbon::parse(Arr::get($item, 'played_at', now())),
-        ])->all();
+        foreach ($this->arrayItems($response->json('items', [])) as $item) {
+            $activities[] = [
+                'externalId' => (string) Arr::get($item, 'track.id', Str::uuid()),
+                'activityType' => 'track',
+                'payload' => [
+                    'title' => Arr::get($item, 'track.name'),
+                    'subtitle' => collect($this->arrayItems(Arr::get($item, 'track.artists', [])))->pluck('name')->join(', '),
+                    'imageUrl' => Arr::get($item, 'track.album.images.0.url'),
+                    'url' => Arr::get($item, 'track.external_urls.spotify'),
+                ],
+                'occurredAt' => Carbon::parse(Arr::get($item, 'played_at', Carbon::now())),
+            ];
+        }
+
+        return $activities;
     }
 
     /** @return list<array{externalId: string, activityType: string, payload: array<string, mixed>, occurredAt: Carbon}> */
@@ -193,18 +203,23 @@ class IntegrationManager
             'steamid' => Arr::get($credentials, 'steam_id'),
             'format' => 'json',
         ])->throw();
+        $activities = [];
 
-        return collect($response->json('response.games', []))->map(fn (array $game) => [
-            'externalId' => (string) Arr::get($game, 'appid'),
-            'activityType' => 'game',
-            'payload' => [
-                'title' => Arr::get($game, 'name'),
-                'subtitle' => round(((int) Arr::get($game, 'playtime_2weeks', 0)) / 60, 1).'h in the last two weeks',
-                'imageUrl' => 'https://cdn.cloudflare.steamstatic.com/steam/apps/'.Arr::get($game, 'appid').'/header.jpg',
-                'minutesPlayed' => Arr::get($game, 'playtime_forever', 0),
-            ],
-            'occurredAt' => now(),
-        ])->all();
+        foreach ($this->arrayItems($response->json('response.games', [])) as $game) {
+            $activities[] = [
+                'externalId' => (string) Arr::get($game, 'appid'),
+                'activityType' => 'game',
+                'payload' => [
+                    'title' => Arr::get($game, 'name'),
+                    'subtitle' => round(((int) Arr::get($game, 'playtime_2weeks', 0)) / 60, 1).'h in the last two weeks',
+                    'imageUrl' => 'https://cdn.cloudflare.steamstatic.com/steam/apps/'.Arr::get($game, 'appid').'/header.jpg',
+                    'minutesPlayed' => Arr::get($game, 'playtime_forever', 0),
+                ],
+                'occurredAt' => Carbon::now(),
+            ];
+        }
+
+        return $activities;
     }
 
     /** @return list<array{externalId: string, activityType: string, payload: array<string, mixed>, occurredAt: Carbon}> */
@@ -218,19 +233,24 @@ class IntegrationManager
             'format' => 'json',
             'limit' => 12,
         ])->throw();
+        $activities = [];
 
-        return collect($response->json('recenttracks.track', []))->map(fn (array $track, int $index) => [
-            'externalId' => sha1((string) Arr::get($track, 'url').Arr::get($track, 'date.uts', $index)),
-            'activityType' => 'track',
-            'payload' => [
-                'title' => Arr::get($track, 'name'),
-                'subtitle' => Arr::get($track, 'artist.#text'),
-                'imageUrl' => Arr::get($track, 'image.3.#text'),
-                'url' => Arr::get($track, 'url'),
-                'nowPlaying' => Arr::get($track, '@attr.nowplaying') === 'true',
-            ],
-            'occurredAt' => Carbon::createFromTimestamp((int) Arr::get($track, 'date.uts', now()->timestamp)),
-        ])->all();
+        foreach ($this->arrayItems($response->json('recenttracks.track', [])) as $index => $track) {
+            $activities[] = [
+                'externalId' => sha1((string) Arr::get($track, 'url').Arr::get($track, 'date.uts', $index)),
+                'activityType' => 'track',
+                'payload' => [
+                    'title' => Arr::get($track, 'name'),
+                    'subtitle' => Arr::get($track, 'artist.#text'),
+                    'imageUrl' => Arr::get($track, 'image.3.#text'),
+                    'url' => Arr::get($track, 'url'),
+                    'nowPlaying' => Arr::get($track, '@attr.nowplaying') === 'true',
+                ],
+                'occurredAt' => Carbon::createFromTimestamp((int) Arr::get($track, 'date.uts', Carbon::now()->timestamp)),
+            ];
+        }
+
+        return $activities;
     }
 
     /** @return list<array{externalId: string, activityType: string, payload: array<string, mixed>, occurredAt: Carbon}> */
@@ -238,20 +258,25 @@ class IntegrationManager
     {
         $response = $this->client()->withToken($this->validAccessToken($connection))
             ->get('https://wakatime.com/api/v1/users/current/summaries', [
-                'start' => today()->toDateString(),
-                'end' => today()->toDateString(),
+                'start' => Carbon::today()->toDateString(),
+                'end' => Carbon::today()->toDateString(),
             ])->throw();
+        $activities = [];
 
-        return collect($response->json('data.0.projects', []))->map(fn (array $project) => [
-            'externalId' => sha1((string) Arr::get($project, 'name').today()->toDateString()),
-            'activityType' => 'coding',
-            'payload' => [
-                'title' => Arr::get($project, 'name'),
-                'subtitle' => Arr::get($project, 'text'),
-                'seconds' => Arr::get($project, 'total_seconds', 0),
-            ],
-            'occurredAt' => now(),
-        ])->all();
+        foreach ($this->arrayItems($response->json('data.0.projects', [])) as $project) {
+            $activities[] = [
+                'externalId' => sha1((string) Arr::get($project, 'name').Carbon::today()->toDateString()),
+                'activityType' => 'coding',
+                'payload' => [
+                    'title' => Arr::get($project, 'name'),
+                    'subtitle' => Arr::get($project, 'text'),
+                    'seconds' => Arr::get($project, 'total_seconds', 0),
+                ],
+                'occurredAt' => Carbon::now(),
+            ];
+        }
+
+        return $activities;
     }
 
     /** @return list<array{externalId: string, activityType: string, payload: array<string, mixed>, occurredAt: Carbon}> */
@@ -259,18 +284,23 @@ class IntegrationManager
     {
         $guildId = (string) Arr::get($connection->credentials, 'guild_id');
         $response = $this->client()->get("https://discord.com/api/guilds/{$guildId}/widget.json")->throw();
+        $activities = [];
 
-        return collect($response->json('members', []))->take(12)->map(fn (array $member) => [
-            'externalId' => (string) Arr::get($member, 'id', Str::uuid()),
-            'activityType' => 'community',
-            'payload' => [
-                'title' => Arr::get($member, 'username'),
-                'subtitle' => Arr::get($member, 'game.name', 'Online in the community'),
-                'imageUrl' => Arr::get($member, 'avatar_url'),
-                'status' => Arr::get($member, 'status'),
-            ],
-            'occurredAt' => now(),
-        ])->all();
+        foreach (array_slice($this->arrayItems($response->json('members', [])), 0, 12) as $member) {
+            $activities[] = [
+                'externalId' => (string) Arr::get($member, 'id', Str::uuid()),
+                'activityType' => 'community',
+                'payload' => [
+                    'title' => Arr::get($member, 'username'),
+                    'subtitle' => Arr::get($member, 'game.name', 'Online in the community'),
+                    'imageUrl' => Arr::get($member, 'avatar_url'),
+                    'status' => Arr::get($member, 'status'),
+                ],
+                'occurredAt' => Carbon::now(),
+            ];
+        }
+
+        return $activities;
     }
 
     private function client(): PendingRequest
@@ -324,6 +354,26 @@ class IntegrationManager
         return collect($provider->fields())->every(fn (string $field) => filled(Arr::get($credentials, $field)));
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function arrayItems(mixed $items): array
+    {
+        if (! is_array($items)) {
+            return [];
+        }
+
+        $list = [];
+
+        foreach ($items as $item) {
+            if (is_array($item)) {
+                $list[] = $item;
+            }
+        }
+
+        return $list;
+    }
+
     /** @return list<array<string, mixed>> */
     private function demoActivities(IntegrationProvider $provider): array
     {
@@ -348,6 +398,7 @@ class IntegrationManager
                 ['title' => 'Caique // demo', 'subtitle' => 'Building something after midnight', 'meta' => 'demo member'],
                 ['title' => 'rechi-bot // demo', 'subtitle' => 'Disconnected', 'meta' => 'demo member'],
             ],
+            IntegrationProvider::MercadoPago => [],
         };
     }
 }

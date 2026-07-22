@@ -9,6 +9,7 @@ enum IntegrationProvider: string
     case LastFm = 'lastfm';
     case WakaTime = 'wakatime';
     case Discord = 'discord';
+    case MercadoPago = 'mercado_pago';
 
     /** @return list<string> */
     public function fields(): array
@@ -19,6 +20,7 @@ enum IntegrationProvider: string
             self::LastFm => ['api_key', 'username'],
             self::WakaTime => ['client_id', 'client_secret'],
             self::Discord => ['client_id', 'client_secret', 'guild_id'],
+            self::MercadoPago => ['environment', 'public_key', 'access_token', 'webhook_secret'],
         };
     }
 
@@ -30,11 +32,12 @@ enum IntegrationProvider: string
             self::LastFm => 'Last.fm',
             self::WakaTime => 'WakaTime',
             self::Discord => 'Discord',
+            self::MercadoPago => 'Mercado Pago',
         };
     }
 
     public function supportsAutomaticConnection(): bool
     {
-        return $this !== self::LastFm;
+        return ! in_array($this, [self::LastFm, self::MercadoPago], true);
     }
 }

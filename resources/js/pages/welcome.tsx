@@ -1,456 +1,596 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Form, Head, Link, usePage } from '@inertiajs/react';
 import {
-    ArrowDown,
-    ArrowUpRight,
-    Asterisk,
+    ArrowRight,
+    CheckCircle2,
     Code2,
-    Layers3,
+    Database,
     Mail,
-    Menu,
-    Sparkles,
+    MessageCircle,
+    Moon,
+    ShieldCheck,
+    Sun,
+    Wrench,
 } from 'lucide-react';
-import { useState } from 'react';
+import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useAppearance } from '@/hooks/use-appearance';
+import { formatCurrency } from '@/lib/money';
 import { dashboard, login } from '@/routes';
 
-const projects = [
+type Product = {
+    id: number;
+    type: string;
+    name: string;
+    slug: string;
+    shortDescription: string;
+    effectivePriceCents: number;
+    currency: string;
+    estimatedDelivery: string;
+    includedFeatures: string[];
+};
+
+type PortfolioItem = {
+    title: string;
+    segment: string | null;
+    solution: string | null;
+    publicUrl: string | null;
+    technologies: string[];
+};
+
+type PageProps = {
+    auth: {
+        user?: unknown;
+    };
+};
+
+const fallbackPortfolio: PortfolioItem[] = [
     {
-        number: '01',
         title: 'BudgetCore',
-        category: 'Finanças · SaaS',
-        description:
-            'Plataforma de gestão financeira para pessoas, freelancers e pequenos negócios, com arquitetura orientada a domínio e histórico auditável.',
-        tags: ['Laravel 12', 'PHP 8.3', 'MySQL'],
-        accent: 'from-[#d8ff3e] via-[#b8e72d] to-[#789d00]',
-        artwork: 'BC',
-        url: 'https://github.com/CaiqueRechi/budgetcore-showcase',
+        segment: 'Financas / SaaS',
+        solution:
+            'Plataforma de gestao financeira com historico auditavel e arquitetura Laravel.',
+        publicUrl: 'https://github.com/CaiqueRechi/budgetcore-showcase',
+        technologies: ['Laravel', 'PHP', 'MySQL'],
     },
     {
-        number: '02',
         title: 'Payment Flow',
-        category: 'API · Pagamentos',
-        description:
-            'Microsserviço para gerenciar o ciclo completo de pagamentos, com trilha de auditoria, status seguros, testes automatizados e CI.',
-        tags: ['REST API', 'PHPUnit', 'GitHub Actions'],
-        accent: 'from-[#ff775f] via-[#f24f38] to-[#a51d11]',
-        artwork: 'PF',
-        url: 'https://github.com/CaiqueRechi/payment-flow-service',
+        segment: 'API / Pagamentos',
+        solution:
+            'Servico para ciclo de pagamentos com status seguros, auditoria e testes.',
+        publicUrl: 'https://github.com/CaiqueRechi/payment-flow-service',
+        technologies: ['REST API', 'PHPUnit', 'CI'],
     },
     {
-        number: '03',
         title: 'Rechi',
-        category: 'Portfólio · Ecossistema',
-        description:
-            'Este portfólio como produto vivo: uma aplicação moderna para apresentar projetos, experimentar integrações e evoluir meu ecossistema profissional.',
-        tags: ['Laravel 13', 'Inertia', 'React'],
-        accent: 'from-[#9f8cff] via-[#765ce9] to-[#33248a]',
-        artwork: 'CR',
-        url: 'https://github.com/CaiqueRechi/rechi',
+        segment: 'Portfolio / Produto proprio',
+        solution:
+            'Aplicacao Laravel/Inertia para portfolio, integracoes pessoais e canal comercial.',
+        publicUrl: 'https://github.com/CaiqueRechi/rechi',
+        technologies: ['Laravel 13', 'React', 'Inertia'],
     },
 ];
 
-const services = [
-    {
-        icon: Layers3,
-        title: 'Back-end & APIs',
-        description:
-            'Sistemas PHP e Laravel com regras de negócio claras, APIs REST sustentáveis e atenção a performance.',
-    },
-    {
-        icon: Code2,
-        title: 'Pagamentos & e-commerce',
-        description:
-            'Checkouts transparentes, integrações com gateways e fluxos financeiros rastreáveis de ponta a ponta.',
-    },
-    {
-        icon: Sparkles,
-        title: 'Modernização de legado',
-        description:
-            'Refatoração incremental, compatibilidade retroativa, testes e evolução segura de sistemas em produção.',
-    },
+const otherServices = [
+    'Sistemas internos em Laravel',
+    'APIs e integracoes com pagamentos',
+    'Dashboards e areas administrativas',
+    'Automacoes de processos web',
+    'Consultoria tecnica para projetos existentes',
 ];
 
-const experience = [
-    [
-        'Jun 2026 — Atual',
-        'Analista de Desenvolvimento Jr',
-        'Ibiporã Empreendimentos',
-    ],
-    ['2025 — 2026', 'Back-End Developer I', 'Mosyle'],
-    ['2022 — 2025', 'Full-Stack / Backend Developer', 'Rede Mídia'],
-    ['2021 — 2022', 'Software Engineering Intern', 'Agriplace'],
-    ['2020 — 2021', 'IT Support Analyst', 'Tata Consultancy Services'],
-];
+export default function Welcome({
+    products = [],
+    portfolioItems = [],
+}: {
+    products?: Product[];
+    portfolioItems?: PortfolioItem[];
+}) {
+    const { auth } = usePage<PageProps>().props;
+    const { resolvedAppearance, updateAppearance } = useAppearance();
+    const landingProducts = products.filter(
+        (product) => product.type === 'landing_page',
+    );
+    const bugProducts = products.filter(
+        (product) => product.type === 'bug_fix',
+    );
+    const portfolio =
+        portfolioItems.length > 0 ? portfolioItems : fallbackPortfolio;
 
-export default function Welcome() {
-    const { auth } = usePage().props;
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const toggleTheme = () => {
+        updateAppearance(resolvedAppearance === 'dark' ? 'light' : 'dark');
+    };
 
     return (
         <>
-            <Head title="Caique Rechi — Back-End Developer">
+            <Head title="Caique Rechi - Desenvolvedor web e landing pages">
                 <meta
                     name="description"
-                    content="Portfólio de Caique Rechi, desenvolvedor back-end com foco em PHP, Laravel, APIs, pagamentos e sistemas de negócio."
+                    content="Portfolio pessoal de Caique Rechi, desenvolvedor web especializado em Laravel, React, landing pages, correcoes de bugs e integracoes."
                 />
             </Head>
 
-            <div className="min-h-screen overflow-hidden bg-[#f2f0e9] text-[#171713] selection:bg-[#d8ff3e] selection:text-black dark:bg-[#11110f] dark:text-[#f2f0e9]">
-                <header className="relative z-20 border-b border-black/15 dark:border-white/15">
-                    <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
-                        <a
-                            href="#inicio"
-                            className="flex items-center gap-2 text-lg font-black tracking-[-0.06em] uppercase"
-                        >
-                            <span className="flex size-7 items-center justify-center rounded-full bg-[#171713] text-[#d8ff3e] dark:bg-[#f2f0e9] dark:text-[#171713]">
-                                C
-                            </span>
-                            Caique®
-                        </a>
-
-                        <nav className="hidden items-center gap-8 text-xs font-semibold tracking-[0.12em] uppercase md:flex">
-                            <a
-                                href="#projetos"
-                                className="transition-opacity hover:opacity-50"
-                            >
-                                Projetos
-                            </a>
-                            <a
-                                href="#sobre"
-                                className="transition-opacity hover:opacity-50"
-                            >
-                                Sobre
-                            </a>
-                            <a
-                                href="#contato"
-                                className="transition-opacity hover:opacity-50"
-                            >
-                                Contato
-                            </a>
+            <main className="min-h-screen bg-[#f7f7f2] text-[#151510] dark:bg-[#10100e] dark:text-[#f7f7f2]">
+                <header className="sticky top-0 z-20 border-b border-black/10 bg-[#f7f7f2]/90 backdrop-blur dark:border-white/10 dark:bg-[#10100e]/90">
+                    <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+                        <Link href="/" className="font-black uppercase">
+                            Caique Rechi
+                        </Link>
+                        <nav className="hidden gap-6 text-sm font-medium lg:flex">
+                            <a href="#sobre">Sobre</a>
+                            <a href="#landing-pages">Landing pages</a>
+                            <a href="#outros-servicos">Outros servicos</a>
+                            <a href="#portfolio">Portfolio</a>
+                            <a href="#faq">FAQ</a>
                         </nav>
-
-                        <div className="flex items-center gap-3">
-                            {auth.user ? (
-                                <Link
-                                    href={dashboard()}
-                                    className="rounded-full border border-black/20 px-4 py-2 text-xs font-bold uppercase transition-colors hover:bg-black hover:text-white dark:border-white/20 dark:hover:bg-white dark:hover:text-black"
-                                >
-                                    Dashboard
-                                </Link>
-                            ) : (
-                                <Link
-                                    href={login()}
-                                    className="hidden rounded-full border border-black/20 px-4 py-2 text-xs font-bold uppercase transition-colors hover:bg-black hover:text-white sm:block dark:border-white/20 dark:hover:bg-white dark:hover:text-black"
-                                >
-                                    Entrar
-                                </Link>
-                            )}
-                            <button
+                        <div className="flex items-center gap-2">
+                            <Button
                                 type="button"
-                                aria-label="Abrir menu"
-                                aria-expanded={isMenuOpen}
-                                aria-controls="mobile-navigation"
-                                onClick={() =>
-                                    setIsMenuOpen((current) => !current)
-                                }
-                                className="flex size-10 items-center justify-center rounded-full bg-[#171713] text-white md:hidden dark:bg-[#f2f0e9] dark:text-black"
+                                variant="outline"
+                                size="icon"
+                                onClick={toggleTheme}
+                                aria-label="Alternar tema"
+                                title="Alternar tema"
                             >
-                                <Menu className="size-4" />
-                            </button>
+                                {resolvedAppearance === 'dark' ? (
+                                    <Sun className="size-4" />
+                                ) : (
+                                    <Moon className="size-4" />
+                                )}
+                            </Button>
+                            <Button asChild variant="outline">
+                                <Link href={auth.user ? dashboard() : login()}>
+                                    {auth.user ? 'Dashboard' : 'Entrar'}
+                                </Link>
+                            </Button>
                         </div>
                     </div>
-                    {isMenuOpen && (
-                        <nav
-                            id="mobile-navigation"
-                            className="grid border-t border-black/15 px-5 py-3 text-sm font-bold uppercase md:hidden dark:border-white/15"
-                        >
-                            {[
-                                ['Projetos', '#projetos'],
-                                ['Sobre', '#sobre'],
-                                ['Contato', '#contato'],
-                            ].map(([label, href]) => (
-                                <a
-                                    key={href}
-                                    href={href}
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="border-b border-black/10 py-4 last:border-0 dark:border-white/10"
-                                >
-                                    {label}
-                                </a>
-                            ))}
-                        </nav>
-                    )}
                 </header>
 
-                <main>
-                    <section
-                        id="inicio"
-                        className="relative border-b border-black/15 dark:border-white/15"
-                    >
-                        <div className="pointer-events-none absolute top-10 right-[-8rem] size-80 rounded-full border border-black/10 sm:size-120 dark:border-white/10" />
-                        <div className="mx-auto grid min-h-[calc(100svh-81px)] max-w-7xl items-end gap-12 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_0.55fr] lg:px-10 lg:py-14">
-                            <div className="relative z-10">
-                                <div className="mb-10 flex items-center gap-3 text-xs font-bold tracking-[0.15em] uppercase">
-                                    <span className="size-2 animate-pulse rounded-full bg-[#8eb500]" />
-                                    Aberto a conexões e novos desafios
-                                </div>
-                                <p className="mb-4 text-sm font-medium sm:text-base">
-                                    Back-End Developer · Full Stack — Londrina,
-                                    PR
-                                </p>
-                                <h1 className="max-w-5xl text-[clamp(4.5rem,14vw,11rem)] leading-[0.73] font-black tracking-[-0.085em] uppercase">
-                                    Negócio
-                                    <span className="block text-[#8eb500] italic">
-                                        vira
-                                    </span>
-                                    software.
-                                </h1>
-                                <div className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                                    <p className="max-w-md text-base leading-relaxed text-black/60 dark:text-white/60">
-                                        Construo e evoluo sistemas para
-                                        e-commerce, SaaS e ambientes
-                                        corporativos, conectando regras de
-                                        negócio, APIs e produto.
-                                    </p>
-                                    <a
-                                        href="#projetos"
-                                        className="group flex size-16 shrink-0 items-center justify-center rounded-full border border-black/30 transition-colors hover:bg-[#d8ff3e] dark:border-white/30 dark:hover:text-black"
-                                        aria-label="Ver projetos"
-                                    >
-                                        <ArrowDown className="size-5 transition-transform group-hover:translate-y-1" />
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div className="relative hidden h-[70%] min-h-96 items-center justify-center lg:flex">
-                                <div className="absolute size-80 rotate-6 rounded-[4rem] bg-[#d8ff3e]" />
-                                <div className="absolute size-64 -rotate-12 rounded-full border-[3rem] border-[#171713] dark:border-[#f2f0e9]" />
-                                <Asterisk className="relative size-52 rotate-12 stroke-[0.5]" />
-                                <span className="absolute right-4 bottom-2 font-mono text-xs uppercase">
-                                    Scroll to explore — 01/04
-                                </span>
-                            </div>
+                <section
+                    id="sobre"
+                    className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-24"
+                >
+                    <div className="grid content-center gap-7">
+                        <p className="text-sm font-semibold tracking-wide text-[#5f7d00] uppercase">
+                            Portfolio pessoal / desenvolvimento web
+                        </p>
+                        <h1 className="max-w-4xl text-5xl font-black tracking-tight sm:text-7xl">
+                            Sou Caique Rechi. Transformo ideias, sistemas e
+                            ofertas em experiencias web claras.
+                        </h1>
+                        <p className="max-w-2xl text-lg leading-relaxed text-black/65 dark:text-white/65">
+                            Trabalho com PHP, Laravel, React, Inertia, APIs,
+                            banco de dados e integracoes. Meu foco e construir
+                            paginas e sistemas que sejam objetivos para vender,
+                            faceis de manter e confiaveis em producao.
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                            <Button asChild size="lg">
+                                <a href="#landing-pages">
+                                    Ver ofertas
+                                    <ArrowRight className="size-4" />
+                                </a>
+                            </Button>
+                            <Button asChild size="lg" variant="outline">
+                                <a href="#outros-servicos">
+                                    Solicitar outro servico
+                                </a>
+                            </Button>
                         </div>
-                    </section>
+                    </div>
 
-                    <section
-                        id="projetos"
-                        className="px-5 py-24 sm:px-8 lg:px-10 lg:py-32"
-                    >
-                        <div className="mx-auto max-w-7xl">
-                            <div className="mb-14 flex items-end justify-between gap-8 border-b border-black/20 pb-6 dark:border-white/20">
-                                <div>
-                                    <p className="mb-3 text-xs font-bold tracking-[0.16em] text-black/50 uppercase dark:text-white/50">
-                                        Trabalho selecionado
+                    <div className="grid content-center gap-4">
+                        <Card className="rounded-lg">
+                            <CardHeader>
+                                <CardTitle>Como posso ajudar</CardTitle>
+                            </CardHeader>
+                            <CardContent className="grid gap-4 text-sm">
+                                {[
+                                    'Landing pages para validar ofertas e captar contatos.',
+                                    'Correcoes de bugs em PHP, Laravel, JavaScript e APIs.',
+                                    'Integracoes com pagamentos, webhooks, e-mail e paineis.',
+                                    'Organizacao tecnica para projetos que precisam evoluir.',
+                                ].map((step) => (
+                                    <p key={step} className="flex gap-2">
+                                        <CheckCircle2 className="mt-0.5 size-4 text-[#5f7d00]" />
+                                        {step}
                                     </p>
-                                    <h2 className="text-4xl font-black tracking-[-0.055em] sm:text-6xl">
-                                        Projetos em destaque
-                                    </h2>
-                                </div>
-                                <span className="hidden font-mono text-sm sm:block">
-                                    (03)
-                                </span>
-                            </div>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </section>
 
-                            <div className="flex flex-col gap-16 lg:gap-24">
-                                {projects.map((project) => (
-                                    <article
-                                        key={project.title}
-                                        className="group grid gap-7 lg:grid-cols-[1.2fr_0.8fr] lg:items-end"
+                <section className="border-y border-black/10 bg-white px-5 py-8 sm:px-8 dark:border-white/10 dark:bg-[#171713]">
+                    <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-4">
+                        <MiniMetric value="Laravel" label="Backend" />
+                        <MiniMetric value="React" label="Frontend" />
+                        <MiniMetric value="APIs" label="Integracoes" />
+                        <MiniMetric value="SEO" label="Base tecnica" />
+                    </div>
+                </section>
+
+                <section
+                    id="landing-pages"
+                    className="px-5 py-16 sm:px-8"
+                >
+                    <div className="mx-auto grid max-w-7xl gap-8">
+                        <SectionTitle
+                            title="Landing pages prontas para receber clientes"
+                            description="Pacotes com escopo fechado, prazo e itens incluidos visiveis antes da compra."
+                        />
+                        <ProductGrid products={landingProducts} />
+                    </div>
+                </section>
+
+                <section
+                    id="bugs"
+                    className="border-y border-black/10 bg-white px-5 py-16 sm:px-8 dark:border-white/10 dark:bg-[#171713]"
+                >
+                    <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+                        <div className="grid content-start gap-4">
+                            <Wrench className="size-10 text-[#5f7d00]" />
+                            <SectionTitle
+                                title="Correcao de bugs em PHP, Laravel e JavaScript"
+                                description="Diagnostico com minimo de 2 horas, autorizacao antes de exceder horas e registro do pedido."
+                            />
+                            <p className="text-sm text-black/60 dark:text-white/60">
+                                Quando o erro nao for reproduzivel, o trabalho
+                                vira diagnostico documentado com proximos
+                                passos. Acesso a codigo, logs e ambiente deve
+                                ser fornecido de forma segura.
+                            </p>
+                        </div>
+                        <ProductGrid products={bugProducts} />
+                    </div>
+                </section>
+
+                <section id="outros-servicos" className="px-5 py-16 sm:px-8">
+                    <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+                        <div className="grid content-start gap-6">
+                            <SectionTitle
+                                title="Solicite outros servicos"
+                                description="Se o que voce precisa nao cabe em uma landing page ou bug pontual, envie um pedido de escopo personalizado."
+                            />
+                            <div className="grid gap-3">
+                                {otherServices.map((service) => (
+                                    <p
+                                        key={service}
+                                        className="flex items-center gap-3 text-sm"
                                     >
-                                        <div
-                                            className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br ${project.accent}`}
-                                        >
-                                            <div className="absolute inset-5 rounded-xl border border-white/35" />
-                                            <span className="absolute top-8 left-8 font-mono text-xs text-white/80">
-                                                PROJECT / {project.number}
-                                            </span>
-                                            <span className="absolute inset-0 flex items-center justify-center text-[clamp(7rem,20vw,15rem)] leading-none font-black tracking-[-0.12em] text-white/90 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-2">
-                                                {project.artwork}
-                                            </span>
-                                            <a
-                                                href={project.url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                aria-label={`Ver ${project.title} no GitHub`}
-                                                className="absolute right-7 bottom-7 flex size-14 items-center justify-center rounded-full bg-black text-white transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
-                                            >
-                                                <ArrowUpRight className="size-5" />
-                                            </a>
-                                        </div>
-
-                                        <div className="lg:pb-3">
-                                            <div className="mb-6 flex items-center justify-between border-b border-black/20 pb-4 text-xs font-bold uppercase dark:border-white/20">
-                                                <span>{project.category}</span>
-                                                <span>
-                                                    {project.number} / 03
-                                                </span>
-                                            </div>
-                                            <h3 className="text-4xl font-black tracking-[-0.055em] sm:text-6xl">
-                                                {project.title}
-                                            </h3>
-                                            <p className="mt-5 max-w-lg text-base leading-relaxed text-black/60 dark:text-white/60">
-                                                {project.description}
-                                            </p>
-                                            <div className="mt-7 flex flex-wrap gap-2">
-                                                {project.tags.map((tag) => (
-                                                    <span
-                                                        key={tag}
-                                                        className="rounded-full border border-black/20 px-3 py-1.5 text-xs dark:border-white/20"
-                                                    >
-                                                        {tag}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </article>
+                                        <CheckCircle2 className="size-4 text-[#5f7d00]" />
+                                        {service}
+                                    </p>
                                 ))}
                             </div>
                         </div>
-                    </section>
 
-                    <section className="bg-[#171713] px-5 py-24 text-[#f2f0e9] sm:px-8 lg:px-10 lg:py-32">
-                        <div className="mx-auto max-w-7xl">
-                            <div className="grid gap-14 lg:grid-cols-[0.7fr_1.3fr]">
-                                <div>
-                                    <p className="text-xs font-bold tracking-[0.16em] text-white/50 uppercase">
-                                        Como eu posso ajudar
-                                    </p>
-                                    <Asterisk className="mt-10 size-20 text-[#d8ff3e]" />
-                                </div>
-                                <div className="divide-y divide-white/15 border-t border-white/15">
-                                    {services.map((service, index) => (
-                                        <div
-                                            key={service.title}
-                                            className="grid gap-5 py-9 sm:grid-cols-[4rem_1fr_1fr]"
-                                        >
-                                            <span className="font-mono text-xs text-white/40">
-                                                0{index + 1}
-                                            </span>
-                                            <div className="flex items-start gap-4">
-                                                <service.icon className="mt-1 size-5 text-[#d8ff3e]" />
-                                                <h3 className="text-xl font-bold">
-                                                    {service.title}
-                                                </h3>
-                                            </div>
-                                            <p className="leading-relaxed text-white/55">
-                                                {service.description}
-                                            </p>
+                        <OtherServiceForm />
+                    </div>
+                </section>
+
+                <section
+                    id="portfolio"
+                    className="border-y border-black/10 bg-white px-5 py-16 sm:px-8 dark:border-white/10 dark:bg-[#171713]"
+                >
+                    <div className="mx-auto grid max-w-7xl gap-8">
+                        <SectionTitle
+                            title="Portfolio"
+                            description="Trabalhos reais e projetos tecnicos usados para demonstrar experiencia."
+                        />
+                        <div className="grid gap-4 md:grid-cols-3">
+                            {portfolio.map((item) => (
+                                <Card key={item.title} className="rounded-lg">
+                                    <CardHeader>
+                                        <CardTitle>{item.title}</CardTitle>
+                                        <p className="text-sm text-muted-foreground">
+                                            {item.segment}
+                                        </p>
+                                    </CardHeader>
+                                    <CardContent className="grid gap-4">
+                                        <p className="text-sm text-muted-foreground">
+                                            {item.solution}
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {item.technologies.map((tech) => (
+                                                <span
+                                                    key={tech}
+                                                    className="rounded-md border px-2 py-1 text-xs"
+                                                >
+                                                    {tech}
+                                                </span>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section
-                        id="sobre"
-                        className="px-5 py-24 sm:px-8 lg:px-10 lg:py-32"
-                    >
-                        <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-2">
-                            <div>
-                                <p className="mb-6 text-xs font-bold tracking-[0.16em] text-black/50 uppercase dark:text-white/50">
-                                    Um pouco sobre mim
-                                </p>
-                                <h2 className="text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-6xl">
-                                    Código com contexto de negócio.
-                                </h2>
-                            </div>
-                            <div className="flex flex-col justify-end gap-8">
-                                <p className="text-xl leading-relaxed text-black/65 dark:text-white/65">
-                                    Sou desenvolvedor full stack com foco em
-                                    back-end e mais de quatro anos de
-                                    experiência construindo, mantendo e
-                                    modernizando sistemas em produção.
-                                </p>
-                                <p className="leading-relaxed text-black/55 dark:text-white/55">
-                                    Minha base em processos financeiros,
-                                    faturamento e operações me ajuda a traduzir
-                                    regras complexas em soluções escaláveis.
-                                    Trabalho principalmente com PHP, Laravel,
-                                    MySQL, APIs REST, integrações de pagamento e
-                                    sistemas legados.
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    {[
-                                        'Medalhista NASA Space Apps',
-                                        'Inglês B2',
-                                        '4+ anos em produção',
-                                    ].map((highlight) => (
-                                        <span
-                                            key={highlight}
-                                            className="rounded-full border border-black/20 px-3 py-1.5 text-xs font-semibold dark:border-white/20"
-                                        >
-                                            {highlight}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mx-auto mt-20 max-w-7xl border-t border-black/20 dark:border-white/20">
-                            {experience.map(([period, role, company]) => (
-                                <div
-                                    key={period}
-                                    className="grid gap-3 border-b border-black/20 py-6 sm:grid-cols-[0.6fr_1fr_0.7fr] sm:items-center dark:border-white/20"
-                                >
-                                    <span className="font-mono text-xs text-black/50 dark:text-white/50">
-                                        {period}
-                                    </span>
-                                    <strong className="text-lg">{role}</strong>
-                                    <span className="sm:text-right">
-                                        {company}
-                                    </span>
-                                </div>
+                                    </CardContent>
+                                </Card>
                             ))}
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    <section
-                        id="contato"
-                        className="border-t border-black/15 bg-[#d8ff3e] text-[#171713]"
-                    >
-                        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
-                            <div className="flex flex-col items-start gap-10">
-                                <p className="text-xs font-bold tracking-[0.16em] uppercase">
-                                    Tem um projeto em mente?
+                <section className="px-5 py-16 sm:px-8">
+                    <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
+                        <TrustItem
+                            icon={ShieldCheck}
+                            title="Pagamento protegido"
+                            text="Pix e cartao passam pelo checkout hospedado do Mercado Pago. O servidor nao processa cartao."
+                        />
+                        <TrustItem
+                            icon={Code2}
+                            title="Stack de producao"
+                            text="PHP, Laravel, APIs, MySQL/MariaDB, JavaScript e integracoes com webhooks."
+                        />
+                        <TrustItem
+                            icon={MessageCircle}
+                            title="Acompanhamento"
+                            text="Pedido, briefing e status ficam registrados no sistema apos a compra."
+                        />
+                    </div>
+                </section>
+
+                <section
+                    id="faq"
+                    className="border-t border-black/10 px-5 py-16 sm:px-8 dark:border-white/10"
+                >
+                    <div className="mx-auto grid max-w-4xl gap-5">
+                        <SectionTitle
+                            title="Perguntas frequentes"
+                            description="Informacoes diretas antes de contratar."
+                        />
+                        {[
+                            [
+                                'SEO garante posicao no Google?',
+                                'Nao. A entrega cria uma base tecnica correta, rastreavel e indexavel. Resultado organico depende de concorrencia, autoridade, conteudo e tempo.',
+                            ],
+                            [
+                                'Posso pedir reembolso?',
+                                'A contratacao seguira a legislacao brasileira, incluindo direito de arrependimento quando aplicavel e regras especificas para execucao personalizada.',
+                            ],
+                            [
+                                'Preciso criar conta?',
+                                'Sim. A conta permite criar o pedido, receber o link seguro e acompanhar briefing, pagamento e producao.',
+                            ],
+                        ].map(([question, answer]) => (
+                            <article
+                                key={question}
+                                className="rounded-lg border bg-card p-5"
+                            >
+                                <h3 className="font-semibold">{question}</h3>
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                    {answer}
                                 </p>
-                                <a
-                                    href="mailto:caique.rechi.dev@gmail.com"
-                                    className="group flex max-w-5xl items-center gap-3 text-[clamp(3.2rem,9vw,8rem)] leading-[0.85] font-black tracking-[-0.075em] uppercase"
-                                >
-                                    Vamos conversar
-                                    <ArrowUpRight className="size-[0.65em] shrink-0 transition-transform group-hover:translate-x-2 group-hover:-translate-y-2" />
-                                </a>
-                                <div className="mt-10 flex w-full flex-col gap-6 border-t border-black/20 pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Mail className="size-4" />
-                                        caique.rechi.dev@gmail.com
-                                    </div>
-                                    <div className="flex gap-6 font-semibold">
-                                        <a
-                                            href="https://linkedin.com/in/caique-rechi"
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="hover:underline"
-                                        >
-                                            LinkedIn
-                                        </a>
-                                        <a
-                                            href="https://github.com/CaiqueRechi"
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="hover:underline"
-                                        >
-                                            GitHub
-                                        </a>
-                                    </div>
-                                    <span>© 2026 — Londrina, PR</span>
-                                </div>
-                            </div>
+                            </article>
+                        ))}
+                    </div>
+                </section>
+
+                <footer className="bg-[#d8ff3e] px-5 py-12 text-[#151510] sm:px-8">
+                    <div className="mx-auto flex max-w-7xl flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h2 className="text-3xl font-black">
+                                Vamos colocar isso em producao?
+                            </h2>
+                            <p className="text-sm">
+                                Landing page, bug ou sistema sob medida:
+                                escolha uma oferta ou envie uma solicitacao.
+                            </p>
                         </div>
-                    </section>
-                </main>
-            </div>
+                        <a
+                            href="mailto:caique.rechi.dev@gmail.com"
+                            className="flex items-center gap-2 font-semibold"
+                        >
+                            <Mail className="size-4" />
+                            caique.rechi.dev@gmail.com
+                        </a>
+                        <nav className="flex flex-wrap gap-4 text-sm font-semibold">
+                            <Link href="/termos-de-uso">Termos</Link>
+                            <Link href="/privacidade">Privacidade</Link>
+                            <Link href="/arrependimento-e-reembolso">
+                                Reembolso legal
+                            </Link>
+                        </nav>
+                    </div>
+                </footer>
+            </main>
         </>
+    );
+}
+
+function OtherServiceForm() {
+    return (
+        <Form
+            action="/solicitar-servico"
+            method="post"
+            className="grid gap-5 rounded-lg border bg-card p-6"
+        >
+            {({ processing, errors, recentlySuccessful }) => (
+                <>
+                    {recentlySuccessful && (
+                        <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+                            Solicitacao enviada. Vou analisar e retornar pelo
+                            contato informado.
+                        </div>
+                    )}
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="grid gap-2">
+                            <Label htmlFor="name">Nome</Label>
+                            <Input id="name" name="name" required />
+                            <InputError message={errors.name} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="email">E-mail</Label>
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                required
+                            />
+                            <InputError message={errors.email} />
+                        </div>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="grid gap-2">
+                            <Label htmlFor="phone">WhatsApp</Label>
+                            <Input id="phone" name="phone" />
+                            <InputError message={errors.phone} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="technology">Tecnologia</Label>
+                            <Input
+                                id="technology"
+                                name="technology"
+                                placeholder="Laravel, React, WordPress..."
+                            />
+                            <InputError message={errors.technology} />
+                        </div>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="url">URL do projeto</Label>
+                        <Input
+                            id="url"
+                            name="url"
+                            type="url"
+                            placeholder="https://..."
+                        />
+                        <InputError message={errors.url} />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="problem_description">
+                            O que voce precisa?
+                        </Label>
+                        <textarea
+                            id="problem_description"
+                            name="problem_description"
+                            required
+                            className="min-h-32 rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                            placeholder="Descreva o objetivo, problema, prazo desejado e contexto do projeto."
+                        />
+                        <InputError message={errors.problem_description} />
+                    </div>
+                    <label className="flex items-start gap-3 text-sm">
+                        <Checkbox name="consent_accepted" value="1" />
+                        <span>
+                            Aceito ser contatado sobre esta solicitacao e li a{' '}
+                            <Link href="/privacidade" className="underline">
+                                politica de privacidade
+                            </Link>
+                            .
+                        </span>
+                    </label>
+                    <InputError message={errors.consent_accepted} />
+                    <Button disabled={processing}>
+                        Enviar solicitacao
+                        <ArrowRight className="size-4" />
+                    </Button>
+                </>
+            )}
+        </Form>
+    );
+}
+
+function MiniMetric({ value, label }: { value: string; label: string }) {
+    return (
+        <div className="flex items-center gap-3">
+            <Database className="size-5 text-[#5f7d00]" />
+            <div>
+                <strong className="block text-lg">{value}</strong>
+                <span className="text-sm text-muted-foreground">{label}</span>
+            </div>
+        </div>
+    );
+}
+
+function SectionTitle({
+    title,
+    description,
+}: {
+    title: string;
+    description: string;
+}) {
+    return (
+        <div className="grid gap-2">
+            <h2 className="text-3xl font-black tracking-tight md:text-4xl">
+                {title}
+            </h2>
+            <p className="max-w-2xl text-muted-foreground">{description}</p>
+        </div>
+    );
+}
+
+function ProductGrid({ products }: { products: Product[] }) {
+    if (products.length === 0) {
+        return (
+            <Card className="rounded-lg">
+                <CardContent className="p-6 text-sm text-muted-foreground">
+                    Nenhuma oferta ativa cadastrada ainda.
+                </CardContent>
+            </Card>
+        );
+    }
+
+    return (
+        <div className="grid gap-4 md:grid-cols-2">
+            {products.map((product) => (
+                <Card key={product.id} className="rounded-lg">
+                    <CardHeader>
+                        <CardTitle>{product.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                            {product.shortDescription}
+                        </p>
+                    </CardHeader>
+                    <CardContent className="grid gap-5">
+                        <div>
+                            <strong className="text-3xl">
+                                {formatCurrency(
+                                    product.effectivePriceCents,
+                                    product.currency,
+                                )}
+                            </strong>
+                            <p className="text-sm text-muted-foreground">
+                                {product.estimatedDelivery}
+                            </p>
+                        </div>
+                        <ul className="grid gap-2 text-sm">
+                            {product.includedFeatures
+                                .slice(0, 4)
+                                .map((feature) => (
+                                    <li key={feature} className="flex gap-2">
+                                        <CheckCircle2 className="mt-0.5 size-4 text-[#5f7d00]" />
+                                        {feature}
+                                    </li>
+                                ))}
+                        </ul>
+                        <Button asChild>
+                            <Link href={`/landing-pages/${product.slug}`}>
+                                Ver detalhes
+                                <ArrowRight className="size-4" />
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            ))}
+        </div>
+    );
+}
+
+function TrustItem({
+    icon: Icon,
+    title,
+    text,
+}: {
+    icon: typeof ShieldCheck;
+    title: string;
+    text: string;
+}) {
+    return (
+        <article className="rounded-lg border bg-card p-5">
+            <Icon className="mb-4 size-6 text-[#5f7d00]" />
+            <h3 className="font-semibold">{title}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{text}</p>
+        </article>
     );
 }

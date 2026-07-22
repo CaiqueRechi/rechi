@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureUserIsActive::class,
         ]);
 
+        $middleware->preventRequestForgery(except: [
+            'payments/mercado-pago/webhook',
+        ]);
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
