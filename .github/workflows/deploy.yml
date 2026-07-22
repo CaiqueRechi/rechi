@@ -1,6 +1,11 @@
 name: Deploy Hostinger
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
     inputs:
       upload_vendor:
