@@ -66,6 +66,19 @@ No mobile ou em dispositivos incompatíveis, o módulo do motor não é baixado.
 
 O canvas possui `pointer-events: none` e `aria-hidden="true"`. Links, seleção de texto e formulários continuam funcionando normalmente.
 
+## Janela de observação no scroll
+
+Entre a apresentação da página e os painéis de integração existe um interlúdio de `90svh` exclusivo do desktop, separado do conteúdo por margens verticais responsivas de `3rem` a `4rem`. O trecho não adiciona conteúdo interativo: ele cria um espaço curto para que o personagem central e o terreno procedural possam ser observados antes de o feed normal retornar. Em telas menores, onde o motor não é carregado, o interlúdio também não é exibido.
+
+O componente `CyberGardenInterlude` combina duas responsabilidades pequenas:
+
+- gradientes suaves nas extremidades criam a entrada e a saída sem cortes;
+- um `IntersectionObserver` avisa quando a janela ocupa uma parte relevante da viewport.
+
+Durante a observação, `ProceduralBackground` aumenta gradualmente a opacidade e a saturação do canvas, aplica um zoom mínimo e reduz o vinhete. Os véus se afastam verticalmente, as linhas laterais se expandem e um brilho central aparece sem cobrir o personagem. Ao sair do trecho, os valores retornam ao estado discreto usado atrás do conteúdo. As transições usam `motion-reduce:transition-none`, respeitando a preferência de redução de movimento.
+
+O `IntersectionObserver` altera apenas um booleano React na entrada e na saída. Nenhum estado é atualizado continuamente durante o scroll, evitando rerenders por frame.
+
 ## Seed e determinismo
 
 A seed é resolvida nesta ordem:
@@ -87,13 +100,13 @@ Exemplo para reproduzir um mundo durante desenvolvimento:
 
 O mundo utiliza cinco biomas:
 
-| Bioma | Papel visual |
-| --- | --- |
-| `deepWater` | água roxa profunda |
-| `water` | margens e lagos violetas |
-| `moss` | transição escura entre água e jardim |
-| `grass` | grama verde neon |
-| `rock` | formações azuladas |
+| Bioma       | Papel visual                         |
+| ----------- | ------------------------------------ |
+| `deepWater` | água roxa profunda                   |
+| `water`     | margens e lagos violetas             |
+| `moss`      | transição escura entre água e jardim |
+| `grass`     | grama verde neon                     |
+| `rock`      | formações azuladas                   |
 
 O terreno combina duas frequências de value noise:
 
@@ -117,10 +130,10 @@ Ao desenhar um frame:
 Limites atuais:
 
 | Qualidade | Chunks máximos |
-| --- | ---: |
-| Low | 16 |
-| Medium | 25 |
-| High | 36 |
+| --------- | -------------: |
+| Low       |             16 |
+| Medium    |             25 |
+| High      |             36 |
 
 Para adicionar um bioma, atualize `TerrainType`, `WorldPalette`, `CyberGardenPalette`, `sampleTerrain` e `ChunkCache.drawTerrainDetail`.
 
@@ -132,12 +145,12 @@ Os frames são gerados uma vez no construtor e guardados em memória. Durante o 
 
 Estados atuais:
 
-| Estado | Gatilho |
-| --- | --- |
-| `idle` | ponteiro no centro |
-| `looking` | ponteiro dentro da zona morta |
-| `walking` | distância moderada |
-| `running` | ponteiro distante |
+| Estado      | Gatilho                            |
+| ----------- | ---------------------------------- |
+| `idle`      | ponteiro no centro                 |
+| `looking`   | ponteiro dentro da zona morta      |
+| `walking`   | distância moderada                 |
+| `running`   | ponteiro distante                  |
 | `surprised` | movimento muito rápido do ponteiro |
 
 Novos estados devem ser adicionados ao tipo `CharacterState`, à geração de frames e à regra correspondente no núcleo ou no motor.
@@ -162,10 +175,10 @@ Movimentos bruscos acionam `surprised` por aproximadamente `420ms` e reduzem tem
 O motor começa em Medium:
 
 | Qualidade | Largura interna máxima | FPS | Partículas |
-| --- | ---: | ---: | ---: |
-| Low | 320px | 24 | 5 |
-| Medium | 480px | 30 | 10 |
-| High | 640px | 45 | 16 |
+| --------- | ---------------------: | --: | ---------: |
+| Low       |                  320px |  24 |          5 |
+| Medium    |                  480px |  30 |         10 |
+| High      |                  640px |  45 |         16 |
 
 O `QualityMonitor` mede o tempo gasto em atualização e renderização. Depois de 120 amostras, reduz um nível se a média ultrapassar o limite configurado. A qualidade não sobe automaticamente durante a sessão para evitar oscilações.
 

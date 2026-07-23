@@ -8,6 +8,7 @@ use App\Http\Controllers\CommercialProductController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\OtherServiceLeadController;
+use App\Http\Controllers\MeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -22,6 +23,7 @@ Route::post('solicitar-servico', OtherServiceLeadController::class)->name('other
 Route::post('payments/mercado-pago/webhook', MercadoPagoWebhookController::class)
     ->middleware('throttle:60,1')
     ->name('payments.mercado-pago.webhook');
+Route::get('me', MeController::class)->name('me');
 
 Route::middleware(['auth', 'active', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');

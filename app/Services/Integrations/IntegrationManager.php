@@ -15,10 +15,10 @@ use Throwable;
 class IntegrationManager
 {
     /** @return array<string, array<string, mixed>> */
-    public function publicData(): array
+    public function publicData(int $activityLimit = 12): array
     {
         $connections = IntegrationConnection::query()
-            ->with(['activities' => fn ($query) => $query->latest('occurred_at')->limit(12)])
+            ->with(['activities' => fn ($query) => $query->latest('occurred_at')->limit($activityLimit)])
             ->get()
             ->keyBy(fn (IntegrationConnection $connection) => $connection->provider->value);
 
@@ -210,12 +210,23 @@ class IntegrationManager
                 'externalId' => (string) Arr::get($game, 'appid'),
                 'activityType' => 'game',
                 'payload' => [
+                    'appId' => Arr::get($game, 'appid'),
                     'title' => Arr::get($game, 'name'),
                     'subtitle' => round(((int) Arr::get($game, 'playtime_2weeks', 0)) / 60, 1).'h in the last two weeks',
                     'imageUrl' => 'https://cdn.cloudflare.steamstatic.com/steam/apps/'.Arr::get($game, 'appid').'/header.jpg',
                     'minutesPlayed' => Arr::get($game, 'playtime_forever', 0),
+                    'minutesPlayedTwoWeeks' => Arr::get($game, 'playtime_2weeks', 0),
+                    'minutesPlayedWindows' => Arr::get($game, 'playtime_windows_forever', 0),
+                    'minutesPlayedMac' => Arr::get($game, 'playtime_mac_forever', 0),
+                    'minutesPlayedLinux' => Arr::get($game, 'playtime_linux_forever', 0),
+                    'minutesPlayedDeck' => Arr::get($game, 'playtime_deck_forever', 0),
+                    'lastPlayedAt' => filled(Arr::get($game, 'rtime_last_played'))
+                        ? Carbon::createFromTimestamp((int) Arr::get($game, 'rtime_last_played'))->toIso8601String()
+                        : null,
                 ],
-                'occurredAt' => Carbon::now(),
+                'occurredAt' => filled(Arr::get($game, 'rtime_last_played'))
+                    ? Carbon::createFromTimestamp((int) Arr::get($game, 'rtime_last_played'))
+                    : Carbon::now(),
             ];
         }
 
@@ -383,16 +394,17 @@ class IntegrationManager
                 ['title' => 'Midnight Compiler', 'subtitle' => 'The Runtime', 'meta' => 'demo track'],
             ],
             IntegrationProvider::Steam => [
-                ['title' => 'Signal // Lost', 'subtitle' => '7.4h in the last two weeks', 'meta' => 'demo game'],
-                ['title' => 'Night City Builder', 'subtitle' => '42 achievements', 'meta' => 'demo game'],
+                ['appId' => 1091500, 'title' => 'Signal // Lost', 'subtitle' => '7.4h in the last two weeks', 'meta' => 'demo game', 'minutesPlayed' => 9120, 'minutesPlayedTwoWeeks' => 444, 'minutesPlayedWindows' => 8700, 'minutesPlayedLinux' => 420],
+                ['appId' => 1174180, 'title' => 'Night City Builder', 'subtitle' => '42 achievements', 'meta' => 'demo game', 'minutesPlayed' => 4380, 'minutesPlayedTwoWeeks' => 125, 'minutesPlayedWindows' => 4380],
             ],
             IntegrationProvider::LastFm => [
                 ['title' => 'Offline Frequency', 'subtitle' => 'Demo Artist', 'meta' => 'demo scrobble'],
                 ['title' => 'Static Hearts', 'subtitle' => 'No Connection', 'meta' => 'demo scrobble'],
             ],
             IntegrationProvider::WakaTime => [
-                ['title' => 'rechi', 'subtitle' => '2 hrs 18 mins', 'meta' => 'demo coding time'],
-                ['title' => 'TypeScript', 'subtitle' => '46% of coding time', 'meta' => 'demo language'],
+                ['title' => 'rechi', 'subtitle' => '2 hrs 18 mins', 'meta' => 'demo coding time', 'seconds' => 8280],
+                ['title' => 'midnight-lab', 'subtitle' => '1 hr 04 mins', 'meta' => 'demo coding time', 'seconds' => 3840],
+                ['title' => 'anonymous-api', 'subtitle' => '37 mins', 'meta' => 'demo coding time', 'seconds' => 2220],
             ],
             IntegrationProvider::Discord => [
                 ['title' => 'Caique // demo', 'subtitle' => 'Building something after midnight', 'meta' => 'demo member'],

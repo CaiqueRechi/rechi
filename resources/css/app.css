@@ -141,3 +141,48 @@
         @apply bg-background text-foreground;
     }
 }
+
+@keyframes me-galaxy-drift {
+    0%,
+    100% {
+        transform: translate3d(-2%, -1%, 0) scale(1);
+    }
+
+    50% {
+        transform: translate3d(3%, 2%, 0) scale(1.06);
+    }
+}
+
+@keyframes me-nebula-breathe {
+    0%,
+    100% {
+        opacity: 0.72;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translate3d(-3%, 2%, 0) scale(1.08);
+    }
+}
+
+@keyframes me-galaxy-band {
+    0%,
+    100% {
+        transform: translate3d(-50%, -50%, 0) rotate(-12deg) scale(1);
+    }
+
+    50% {
+        transform: translate3d(-48%, -52%, 0) rotate(-8deg) scale(1.05);
+    }
+}
+
+@keyframes me-star-drift {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+
+    to {
+        transform: translate3d(4%, 6%, 0);
+    }
+}

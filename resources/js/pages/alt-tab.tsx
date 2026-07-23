@@ -12,6 +12,8 @@ import {
     Zap,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useState } from 'react';
+import CyberGardenInterlude from '@/components/cyber-garden-interlude';
 import ProceduralBackground from '@/components/procedural-background';
 import { useAppearance } from '@/hooks/use-appearance';
 
@@ -173,6 +175,7 @@ function SignalPanel({
 
 export default function AltTab({ integrations }: PageProps) {
     const { resolvedAppearance, updateAppearance } = useAppearance();
+    const [isGardenRevealed, setIsGardenRevealed] = useState(false);
     const orderedProviders = [
         'spotify',
         'steam',
@@ -184,8 +187,8 @@ export default function AltTab({ integrations }: PageProps) {
     return (
         <>
             <Head title="ALT / TAB" />
-            <main className="relative min-h-screen overflow-hidden bg-[#f2f0e8] text-zinc-950 selection:bg-fuchsia-400/50 dark:bg-[#090b0d] dark:text-zinc-100 dark:selection:bg-lime-300/40">
-                <ProceduralBackground />
+            <main className="relative min-h-screen overflow-x-clip bg-[#f2f0e8] text-zinc-950 selection:bg-fuchsia-400/50 dark:bg-[#090b0d] dark:text-zinc-100 dark:selection:bg-lime-300/40">
+                <ProceduralBackground isRevealed={isGardenRevealed} />
                 <div
                     aria-hidden
                     className="pointer-events-none absolute inset-0 z-[1] [background-image:linear-gradient(rgba(24,24,27,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(24,24,27,.08)_1px,transparent_1px)] [background-size:32px_32px] opacity-40 dark:[background-image:linear-gradient(rgba(163,230,53,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(163,230,53,.16)_1px,transparent_1px)] dark:opacity-20"
@@ -255,6 +258,10 @@ export default function AltTab({ integrations }: PageProps) {
                             remain server-side &nbsp; // &nbsp;
                         </span>
                     </div>
+
+                    <CyberGardenInterlude
+                        onVisibilityChange={setIsGardenRevealed}
+                    />
 
                     <div className="grid gap-5 md:grid-cols-2">
                         {orderedProviders.map((provider, index) => (

@@ -15,7 +15,8 @@ createInertiaApp({
             case name === 'welcome' ||
                 name === 'old-lp-1' ||
                 name.startsWith('legal/') ||
-                name === 'alt-tab':
+                name === 'alt-tab' ||
+                name === 'me':
                 return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
