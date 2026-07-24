@@ -20,7 +20,9 @@ export default function AnonymousDeveloperProfile({
     );
 
     return (
-        <section className="relative overflow-hidden rounded-3xl border border-violet-300/20 bg-[#120f1a]/95 p-5 shadow-[0_24px_80px_rgba(0,0,0,.34)] sm:p-6">
+        <section className="relative overflow-hidden rounded-[2rem] border border-violet-300/15 bg-[#0d0b15]/85 p-5 shadow-[0_28px_90px_rgba(0,0,0,.38)] backdrop-blur-xl sm:p-7">
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-violet-400 via-fuchsia-300 to-orange-300" />
+            <Braces className="absolute -top-8 -right-5 size-40 rotate-12 text-violet-300/[0.035]" />
             <div className="relative">
                 <header className="flex flex-wrap items-start justify-between gap-4 border-b border-dashed border-violet-300/25 pb-5">
                     <div className="flex items-center gap-4">
@@ -36,7 +38,7 @@ export default function AnonymousDeveloperProfile({
                             </h2>
                         </div>
                     </div>
-                    <span className="border border-violet-300/25 bg-black/25 px-3 py-1 font-mono text-[10px] tracking-wider text-violet-200 uppercase">
+                    <span className="rounded-full border border-violet-300/25 bg-violet-300/5 px-3 py-1 font-mono text-[10px] tracking-wider text-violet-200 uppercase">
                         {integration.isDemo
                             ? 'simulated trace'
                             : 'telemetry online'}
@@ -44,7 +46,7 @@ export default function AnonymousDeveloperProfile({
                 </header>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-xl border border-white/10 bg-black/25 p-4">
+                    <div className="rounded-2xl border border-violet-300/10 bg-violet-300/[0.035] p-4">
                         <Clock3 className="mb-4 size-4 text-violet-300" />
                         <strong className="text-2xl text-white">
                             {formatCodingTime(totalSeconds)}
@@ -53,7 +55,7 @@ export default function AnonymousDeveloperProfile({
                             captured today
                         </p>
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-black/25 p-4">
+                    <div className="rounded-2xl border border-orange-300/10 bg-orange-300/[0.035] p-4">
                         <Braces className="mb-4 size-4 text-orange-300" />
                         <strong className="text-2xl text-white">
                             {entries.length}
@@ -62,7 +64,7 @@ export default function AnonymousDeveloperProfile({
                             active traces
                         </p>
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-black/25 p-4">
+                    <div className="rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.035] p-4">
                         <SquareTerminal className="mb-4 size-4 text-emerald-300" />
                         <strong className="block truncate text-lg text-white">
                             {entries[0]?.title ?? 'redacted'}
@@ -82,7 +84,10 @@ export default function AnonymousDeveloperProfile({
                         );
 
                         return (
-                            <div key={`${activity.title}-${index}`}>
+                            <div
+                                key={`${activity.title}-${index}`}
+                                className="rounded-xl px-2 py-1 transition hover:bg-white/[0.025]"
+                            >
                                 <div className="mb-2 flex items-end justify-between gap-4">
                                     <div className="flex min-w-0 items-center gap-2">
                                         <Code2 className="size-3.5 shrink-0 text-violet-300" />
@@ -110,7 +115,7 @@ export default function AnonymousDeveloperProfile({
                     })}
                 </div>
 
-                <p className="mt-6 border-l-2 border-orange-300/60 pl-3 font-mono text-[11px] leading-relaxed text-zinc-400">
+                <p className="mt-6 rounded-r-xl border-l-2 border-orange-300/60 bg-orange-300/[0.025] py-3 pr-4 pl-4 font-mono text-[11px] leading-relaxed text-zinc-400">
                     Identity intentionally obscured. Only coding duration and
                     selected project aliases should become public; repository
                     contents and credentials remain outside this signal.

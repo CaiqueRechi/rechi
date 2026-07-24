@@ -22,12 +22,35 @@ const providerIcons: Record<string, LucideIcon> = {
     discord: MessageCircle,
 };
 
-const providerAccents: Record<string, string> = {
-    spotify: 'text-emerald-300',
-    steam: 'text-sky-300',
-    wakatime: 'text-violet-300',
-    lastfm: 'text-rose-300',
-    discord: 'text-indigo-300',
+const providerStyles: Record<
+    string,
+    { accent: string; glow: string; surface: string }
+> = {
+    spotify: {
+        accent: 'text-emerald-300',
+        glow: 'group-hover:shadow-[0_18px_50px_rgba(52,211,153,.09)]',
+        surface: 'hover:border-emerald-300/25 hover:bg-emerald-300/[0.035]',
+    },
+    steam: {
+        accent: 'text-sky-300',
+        glow: 'group-hover:shadow-[0_18px_50px_rgba(56,189,248,.09)]',
+        surface: 'hover:border-sky-300/25 hover:bg-sky-300/[0.035]',
+    },
+    wakatime: {
+        accent: 'text-violet-300',
+        glow: 'group-hover:shadow-[0_18px_50px_rgba(167,139,250,.09)]',
+        surface: 'hover:border-violet-300/25 hover:bg-violet-300/[0.035]',
+    },
+    lastfm: {
+        accent: 'text-rose-300',
+        glow: 'group-hover:shadow-[0_18px_50px_rgba(251,113,133,.09)]',
+        surface: 'hover:border-rose-300/25 hover:bg-rose-300/[0.035]',
+    },
+    discord: {
+        accent: 'text-indigo-300',
+        glow: 'group-hover:shadow-[0_18px_50px_rgba(129,140,248,.09)]',
+        surface: 'hover:border-indigo-300/25 hover:bg-indigo-300/[0.035]',
+    },
 };
 
 export default function ConnectedApiRail({
@@ -35,41 +58,39 @@ export default function ConnectedApiRail({
 }: ConnectedApiRailProps) {
     return (
         <section>
-            <div className="mb-4 flex items-end justify-between gap-4">
-                <div>
-                    <p className="font-mono text-[10px] tracking-[0.3em] text-orange-300 uppercase">
-                        External manifestations
-                    </p>
-                    <h2 className="mt-1 text-2xl font-semibold text-white">
-                        Connected signals
-                    </h2>
-                </div>
-                <span className="font-mono text-[10px] text-zinc-500 uppercase">
-                    secrets stay server-side
-                </span>
-            </div>
-
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 {Object.values(integrations).map((integration) => {
                     const Icon = providerIcons[integration.provider] ?? Signal;
                     const activity = integration.activities[0];
+                    const style = providerStyles[integration.provider] ?? {
+                        accent: 'text-orange-300',
+                        glow: '',
+                        surface:
+                            'hover:border-orange-300/25 hover:bg-orange-300/[0.035]',
+                    };
 
                     return (
                         <article
                             key={integration.provider}
-                            className="group relative min-h-44 overflow-hidden rounded-2xl border border-white/10 bg-[#111923]/90 p-4 transition duration-300 hover:-translate-y-1 hover:border-orange-300/35"
+                            className={`group relative min-h-48 overflow-hidden rounded-[1.5rem] border border-white/8 bg-[#0b1019]/80 p-4 backdrop-blur-xl transition duration-300 hover:-translate-y-1 ${style.surface} ${style.glow}`}
                         >
+                            <span
+                                aria-hidden="true"
+                                className={`absolute -top-8 -right-8 size-24 rounded-full bg-current opacity-[0.035] blur-2xl ${style.accent}`}
+                            />
                             <div className="flex items-start justify-between gap-3">
-                                <Icon
-                                    className={`size-5 ${providerAccents[integration.provider] ?? 'text-orange-300'}`}
-                                />
+                                <span
+                                    className={`grid size-10 place-items-center rounded-2xl bg-current/8 ${style.accent}`}
+                                >
+                                    <Icon className="size-5" />
+                                </span>
                                 {integration.connected ? (
                                     <Signal className="size-3.5 text-emerald-300" />
                                 ) : (
                                     <SignalZero className="size-3.5 text-orange-300/70" />
                                 )}
                             </div>
-                            <h3 className="mt-7 font-semibold text-white">
+                            <h3 className="mt-6 font-semibold text-white">
                                 {integration.label}
                             </h3>
                             <p className="mt-1 font-mono text-[10px] tracking-wider text-zinc-500 uppercase">

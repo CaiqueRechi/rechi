@@ -186,3 +186,14 @@
         transform: translate3d(4%, 6%, 0);
     }
 }
+
+@keyframes me-gentle-float {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0) rotate(-2deg);
+    }
+
+    50% {
+        transform: translate3d(0, -7px, 0) rotate(2deg);
+    }
+}
