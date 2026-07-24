@@ -1,7 +1,8 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import SeoHead from '@/components/seo-head';
 import { formatCurrency } from '@/lib/money';
 
 type Product = {
@@ -25,7 +26,11 @@ export default function CommercialProductsIndex({
 }) {
     return (
         <>
-            <Head title="Landing pages e serviços" />
+            <SeoHead
+                title="Landing pages e serviços web | RECHI/"
+                description="Landing pages, correção de bugs e serviços web com escopo, prazo e investimento claros."
+                canonicalPath="/landing-pages"
+            />
             <main className="min-h-screen bg-background px-5 py-10 text-foreground sm:px-8">
                 <div className="mx-auto grid max-w-6xl gap-8">
                     <header className="grid gap-3 border-b pb-6">

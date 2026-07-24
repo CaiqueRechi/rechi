@@ -1,10 +1,15 @@
 import type { ReactNode } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
+import SeoHead from '@/components/seo-head';
 
 export default function Terms() {
     return (
         <>
-            <Head title="Termos de uso" />
+            <SeoHead
+                title="Termos de uso | RECHI/"
+                description="Termos de contratação, pagamento, execução e uso dos serviços digitais oferecidos pela RECHI/."
+                canonicalPath="/termos-de-uso"
+            />
             <main className="min-h-screen bg-[#f7f7f2] px-5 py-12 text-[#151510] sm:px-8">
                 <article className="mx-auto grid max-w-3xl gap-8">
                     <Link href="/" className="text-sm font-semibold">

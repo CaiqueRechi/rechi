@@ -5,13 +5,16 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AltTabController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CommercialProductController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MeController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\OtherServiceLeadController;
-use App\Http\Controllers\MeController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 Route::inertia('old-lp-1', 'old-lp-1')->name('old-lp-1');
 Route::inertia('termos-de-uso', 'legal/terms')->name('legal.terms');
 Route::inertia('privacidade', 'legal/privacy')->name('legal.privacy');
@@ -26,7 +29,7 @@ Route::post('payments/mercado-pago/webhook', MercadoPagoWebhookController::class
 Route::get('me', MeController::class)->name('me');
 
 Route::middleware(['auth', 'active', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
     Route::get('checkout/{commercialProduct:slug}', [CheckoutController::class, 'show'])->name('checkout.show');
     Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('orders/{order}', [CheckoutController::class, 'order'])->name('orders.show');

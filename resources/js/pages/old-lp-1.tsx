@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     ArrowDown,
     ArrowUpRight,
@@ -10,6 +10,7 @@ import {
     Sparkles,
 } from 'lucide-react';
 import { useState } from 'react';
+import SeoHead from '@/components/seo-head';
 import { dashboard, login } from '@/routes';
 
 const projects = [
@@ -87,12 +88,12 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title="Caique Rechi — Back-End Developer">
-                <meta
-                    name="description"
-                    content="Portfólio de Caique Rechi, desenvolvedor back-end com foco em PHP, Laravel, APIs, pagamentos e sistemas de negócio."
-                />
-            </Head>
+            <SeoHead
+                title="Caique Rechi — Back-End Developer"
+                description="Versão anterior do portfólio de Caique Rechi, desenvolvedor back-end com foco em PHP, Laravel, APIs, pagamentos e sistemas de negócio."
+                canonicalPath="/"
+                noIndex
+            />
 
             <div className="min-h-screen overflow-hidden bg-[#f2f0e9] text-[#171713] selection:bg-[#d8ff3e] selection:text-black dark:bg-[#11110f] dark:text-[#f2f0e9]">
                 <header className="relative z-20 border-b border-black/15 dark:border-white/15">

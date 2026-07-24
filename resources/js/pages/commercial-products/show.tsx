@@ -1,6 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import SeoHead from '@/components/seo-head';
 import { formatCurrency } from '@/lib/money';
 
 type Product = {
@@ -16,6 +17,8 @@ type Product = {
     includedFeatures: string[];
     excludedFeatures: string[];
     revisionCount: number;
+    seoTitle: string | null;
+    seoDescription: string | null;
 };
 
 export default function CommercialProductShow({
@@ -25,9 +28,26 @@ export default function CommercialProductShow({
 }) {
     return (
         <>
-            <Head title={product.name}>
-                <meta name="description" content={product.shortDescription} />
-            </Head>
+            <SeoHead
+                title={product.seoTitle ?? `${product.name} | RECHI/`}
+                description={product.seoDescription ?? product.shortDescription}
+                canonicalPath={`/landing-pages/${product.slug}`}
+                type="product"
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'Product',
+                    name: product.name,
+                    description:
+                        product.seoDescription ?? product.shortDescription,
+                    offers: {
+                        '@type': 'Offer',
+                        priceCurrency: product.currency,
+                        price: (product.effectivePriceCents / 100).toFixed(2),
+                        availability: 'https://schema.org/InStock',
+                        url: `https://rechi.net.br/landing-pages/${product.slug}`,
+                    },
+                }}
+            />
             <main className="min-h-screen bg-background px-5 py-10 text-foreground sm:px-8">
                 <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[1.2fr_0.8fr]">
                     <section className="grid content-start gap-6">

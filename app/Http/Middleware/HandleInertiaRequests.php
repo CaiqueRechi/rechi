@@ -38,6 +38,11 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'seo' => [
+                'siteName' => 'RECHI/ Digital Workshop',
+                'siteUrl' => rtrim((string) config('app.url'), '/'),
+                'defaultImageUrl' => asset('apple-touch-icon.png'),
+            ],
             'auth' => [
                 'user' => $request->user(),
             ],

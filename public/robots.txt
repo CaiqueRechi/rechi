@@ -1,2 +1,10 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /checkout/
+Disallow: /dashboard
+Disallow: /login
+Disallow: /orders/
+Disallow: /payments/
+Disallow: /settings/
+
+Sitemap: https://rechi.net.br/sitemap.xml

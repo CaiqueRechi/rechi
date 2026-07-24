@@ -53,6 +53,8 @@ class CommercialProductController extends Controller
             'revisionCount' => $product->revision_count,
             'isFeatured' => $product->is_featured,
             'category' => $product->category,
+            'seoTitle' => $product->seo_title,
+            'seoDescription' => $product->seo_description,
         ];
     }
 }

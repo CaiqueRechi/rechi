@@ -1,4 +1,3 @@
-import { Head } from '@inertiajs/react';
 import {
     Activity,
     Code2,
@@ -15,6 +14,7 @@ import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import CyberGardenInterlude from '@/components/cyber-garden-interlude';
 import ProceduralBackground from '@/components/procedural-background';
+import SeoHead from '@/components/seo-head';
 import { useAppearance } from '@/hooks/use-appearance';
 
 type ActivityItem = {
@@ -186,7 +186,11 @@ export default function AltTab({ integrations }: PageProps) {
 
     return (
         <>
-            <Head title="ALT / TAB" />
+            <SeoHead
+                title="ALT / TAB — Cyber Garden de Caique Rechi"
+                description="Uma frequência alternativa do portfólio de Caique Rechi, com música, jogos, código e integrações em um jardim cyberpunk."
+                canonicalPath="/alt-tab"
+            />
             <main className="relative min-h-screen overflow-x-clip bg-[#f2f0e8] text-zinc-950 selection:bg-fuchsia-400/50 dark:bg-[#090b0d] dark:text-zinc-100 dark:selection:bg-lime-300/40">
                 <ProceduralBackground isRevealed={isGardenRevealed} />
                 <div

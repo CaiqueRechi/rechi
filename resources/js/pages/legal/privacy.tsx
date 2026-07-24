@@ -1,10 +1,15 @@
 import type { ReactNode } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
+import SeoHead from '@/components/seo-head';
 
 export default function Privacy() {
     return (
         <>
-            <Head title="Politica de privacidade" />
+            <SeoHead
+                title="Política de privacidade | RECHI/"
+                description="Saiba como a RECHI/ coleta, utiliza, protege e armazena dados pessoais."
+                canonicalPath="/privacidade"
+            />
             <main className="min-h-screen bg-[#f7f7f2] px-5 py-12 text-[#151510] sm:px-8">
                 <article className="mx-auto grid max-w-3xl gap-8">
                     <Link href="/" className="text-sm font-semibold">
@@ -49,8 +54,7 @@ export default function Privacy() {
                     <LegalSection title="Direitos do titular">
                         O titular pode solicitar acesso, correcao, exclusao,
                         portabilidade ou revisao do tratamento de seus dados,
-                        observadas obrigacoes legais e necessidades
-                        contratuais.
+                        observadas obrigacoes legais e necessidades contratuais.
                     </LegalSection>
 
                     <LegalSection title="Contato">

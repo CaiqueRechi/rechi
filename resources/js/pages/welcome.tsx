@@ -1,4 +1,4 @@
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Form, Link, usePage } from '@inertiajs/react';
 import {
     ArrowDownRight,
     ArrowRight,
@@ -20,6 +20,7 @@ import {
     Wrench,
 } from 'lucide-react';
 import InputError from '@/components/input-error';
+import SeoHead from '@/components/seo-head';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -143,12 +144,37 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="RECHI/ — Desenvolvimento web com intenção">
-                <meta
-                    name="description"
-                    content="Oficina digital de Caique Rechi. Landing pages para vender, sistemas para sustentar e integrações para fazer a operação funcionar."
-                />
-            </Head>
+            <SeoHead
+                title="RECHI/ — Desenvolvimento web com intenção"
+                description="Oficina digital de Caique Rechi. Landing pages para vender, sistemas para sustentar e integrações para fazer a operação funcionar."
+                canonicalPath="/"
+                structuredData={[
+                    {
+                        '@context': 'https://schema.org',
+                        '@type': 'Person',
+                        name: 'Caique Rechi',
+                        url: 'https://rechi.net.br',
+                        jobTitle: 'Desenvolvedor web',
+                        sameAs: ['https://github.com/CaiqueRechi'],
+                        knowsAbout: [
+                            'Laravel',
+                            'PHP',
+                            'React',
+                            'Inertia.js',
+                            'APIs',
+                        ],
+                    },
+                    {
+                        '@context': 'https://schema.org',
+                        '@type': 'ProfessionalService',
+                        name: 'RECHI/ Digital Workshop',
+                        url: 'https://rechi.net.br',
+                        areaServed: 'BR',
+                        description:
+                            'Desenvolvimento de landing pages, sistemas web e integrações.',
+                    },
+                ]}
+            />
 
             <main className="min-h-screen overflow-hidden bg-[#f2efe7] text-[#11120e] selection:bg-[#b8f34a] selection:text-[#11120e] dark:bg-[#07080d] dark:text-[#f2efe7]">
                 <header className="sticky top-0 z-50 border-b border-[#11120e]/15 bg-[#f2efe7]/88 backdrop-blur-xl dark:border-[#f2efe7]/12 dark:bg-[#07080d]/88">

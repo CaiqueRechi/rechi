@@ -1,4 +1,3 @@
-import { Head } from '@inertiajs/react';
 import {
     Activity,
     Braces,
@@ -20,6 +19,7 @@ import type { LucideIcon } from 'lucide-react';
 import AnonymousDeveloperProfile from '@/components/personal-profile/anonymous-developer-profile';
 import ConnectedApiRail from '@/components/personal-profile/connected-api-rail';
 import GalaxyBackground from '@/components/personal-profile/galaxy-background';
+import SeoHead from '@/components/seo-head';
 import SteamShowcase from '@/components/personal-profile/steam-showcase';
 import type { PersonalProfileProps } from '@/components/personal-profile/types';
 
@@ -124,7 +124,12 @@ export default function Me({ integrations }: PersonalProfileProps) {
 
     return (
         <main className="min-h-screen overflow-hidden bg-[#05070e] text-[#d6e6f2] selection:bg-violet-300 selection:text-[#110b20]">
-            <Head title="ME // Night Visitor" />
+            <SeoHead
+                title="Caique Rechi — Perfil pessoal e projetos"
+                description="Perfil pessoal de Caique Rechi: desenvolvimento, jogos, música, projetos e sinais das integrações conectadas."
+                canonicalPath="/me"
+                type="profile"
+            />
 
             <GalaxyBackground />
 
