@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,44 +21,73 @@ class DashboardController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
-        $orders = $this->ordersFor($user);
-        $leads = $this->leadsFor($user);
-        $approvedOrders = (clone $orders)->where('payment_status', PaymentStatus::Approved->value);
-        $orderCount = (clone $orders)->count();
-        $approvedOrderCount = (clone $approvedOrders)->count();
+        $hasOrders = $this->tableExists('orders');
+        $hasLeads = $this->tableExists('leads');
+        $hasPayments = $this->tableExists('payments');
+        $hasIntegrations = $this->tableExists('integration_connections');
+        $orders = $hasOrders ? $this->ordersFor($user) : null;
+        $leads = $hasLeads ? $this->leadsFor($user) : null;
+        $approvedOrders = $orders
+            ? (clone $orders)->where('payment_status', PaymentStatus::Approved->value)
+            : null;
+        $orderCount = $orders ? (clone $orders)->count() : 0;
+        $approvedOrderCount = $approvedOrders ? (clone $approvedOrders)->count() : 0;
+        $missingSources = collect([
+            'Pedidos' => $hasOrders,
+            'Leads' => $hasLeads,
+            'Pagamentos' => $hasPayments,
+            'Integrações' => ! $user->is_admin || $hasIntegrations,
+        ])->reject()->keys()->values()->all();
 
         return Inertia::render('dashboard', [
             'isAdminView' => $user->is_admin,
+            'dataAvailability' => [
+                'isReady' => $missingSources === [],
+                'missingSources' => $missingSources,
+            ],
             'summary' => [
-                'revenueCents' => (clone $approvedOrders)->sum('total_cents'),
+                'revenueCents' => $approvedOrders
+                    ? (clone $approvedOrders)->sum('total_cents')
+                    : 0,
                 'orderCount' => $orderCount,
-                'leadCount' => (clone $leads)->count(),
+                'leadCount' => $leads ? (clone $leads)->count() : 0,
                 'approvalRate' => $orderCount > 0
                     ? round(($approvedOrderCount / $orderCount) * 100, 1)
                     : 0,
-                'connectedIntegrations' => $user->is_admin
+                'connectedIntegrations' => $user->is_admin && $hasIntegrations
                     ? IntegrationConnection::query()->where('status', 'connected')->count()
                     : null,
             ],
-            'monthlyPerformance' => $this->monthlyPerformance($orders),
-            'orderStatuses' => $this->orderStatuses($orders),
-            'leadTypes' => $this->leadTypes($leads),
-            'paymentMethods' => $this->paymentMethods($user),
-            'recentOrders' => (clone $orders)
-                ->latest()
-                ->take(5)
-                ->get()
-                ->map(fn (Order $order) => [
-                    'id' => $order->id,
-                    'publicNumber' => $order->public_number,
-                    'customerName' => $order->customer_name,
-                    'status' => $order->status->value,
-                    'statusLabel' => $order->status->label(),
-                    'totalCents' => $order->total_cents,
-                    'currency' => $order->currency,
-                    'createdAt' => $order->created_at?->toIso8601String(),
-                ]),
+            'monthlyPerformance' => $orders
+                ? $this->monthlyPerformance($orders)
+                : $this->emptyMonthlyPerformance(),
+            'orderStatuses' => $orders ? $this->orderStatuses($orders) : [],
+            'leadTypes' => $leads ? $this->leadTypes($leads) : [],
+            'paymentMethods' => $hasOrders && $hasPayments
+                ? $this->paymentMethods($user)
+                : [],
+            'recentOrders' => $orders
+                ? (clone $orders)
+                    ->latest()
+                    ->take(5)
+                    ->get()
+                    ->map(fn (Order $order) => [
+                        'id' => $order->id,
+                        'publicNumber' => $order->public_number,
+                        'customerName' => $order->customer_name,
+                        'status' => $order->status->value,
+                        'statusLabel' => $order->status->label(),
+                        'totalCents' => $order->total_cents,
+                        'currency' => $order->currency,
+                        'createdAt' => $order->created_at?->toIso8601String(),
+                    ])
+                : [],
         ]);
+    }
+
+    protected function tableExists(string $table): bool
+    {
+        return Schema::hasTable($table);
     }
 
     /** @return Builder<Order> */
@@ -97,6 +127,22 @@ class DashboardController extends Controller
                     'orders' => (clone $orders)
                         ->whereBetween('created_at', [$month, $month->copy()->endOfMonth()])
                         ->count(),
+                ];
+            })
+            ->all();
+    }
+
+    /** @return array<int, array{label: string, revenueCents: int, orders: int}> */
+    private function emptyMonthlyPerformance(): array
+    {
+        return collect(range(5, 0))
+            ->map(function (int $monthsAgo): array {
+                $month = now()->startOfMonth()->subMonths($monthsAgo);
+
+                return [
+                    'label' => $month->translatedFormat('M'),
+                    'revenueCents' => 0,
+                    'orders' => 0,
                 ];
             })
             ->all();

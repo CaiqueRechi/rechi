@@ -3,6 +3,7 @@ import {
     ArrowUpRight,
     BarChart3,
     CircleDollarSign,
+    DatabaseZap,
     Link2,
     ReceiptText,
     Target,
@@ -44,6 +45,10 @@ type RecentOrder = {
 
 type DashboardProps = {
     isAdminView: boolean;
+    dataAvailability: {
+        isReady: boolean;
+        missingSources: string[];
+    };
     summary: Summary;
     monthlyPerformance: MonthlyPerformance[];
     orderStatuses: DistributionItem[];
@@ -56,6 +61,7 @@ const chartColors = ['#8b5cf6', '#22c55e', '#38bdf8', '#f59e0b', '#f43f5e'];
 
 export default function Dashboard({
     isAdminView,
+    dataAvailability,
     summary,
     monthlyPerformance,
     orderStatuses,
@@ -132,6 +138,23 @@ export default function Dashboard({
                         </div>
                     )}
                 </header>
+
+                {!dataAvailability.isReady && (
+                    <section className="flex gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-amber-950 dark:text-amber-100">
+                        <DatabaseZap className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                        <div>
+                            <strong className="text-sm">
+                                Indicadores em preparação
+                            </strong>
+                            <p className="mt-1 text-xs leading-relaxed opacity-80">
+                                Algumas métricas ficarão zeradas até a
+                                preparação dos dados ser concluída.
+                                {isAdminView &&
+                                    ` Fontes pendentes: ${dataAvailability.missingSources.join(', ')}.`}
+                            </p>
+                        </div>
+                    </section>
+                )}
 
                 <section
                     aria-label="Resumo"

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Http\Controllers\DashboardController;
 use App\Models\Lead;
 use App\Models\Order;
 use App\Models\Payment;
@@ -29,6 +30,36 @@ class DashboardTest extends TestCase
 
         $response = $this->get(route('dashboard'));
         $response->assertOk();
+    }
+
+    public function test_dashboard_remains_available_while_business_tables_are_missing(): void
+    {
+        $user = User::factory()->create();
+        $controller = $this->getMockBuilder(DashboardController::class)
+            ->onlyMethods(['tableExists'])
+            ->getMock();
+        $controller->method('tableExists')->willReturn(false);
+        $this->app->instance(DashboardController::class, $controller);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('dashboard')
+                ->where('dataAvailability.isReady', false)
+                ->where('dataAvailability.missingSources', [
+                    'Pedidos',
+                    'Leads',
+                    'Pagamentos',
+                ])
+                ->where('summary.revenueCents', 0)
+                ->where('summary.orderCount', 0)
+                ->where('summary.leadCount', 0)
+                ->has('monthlyPerformance', 6)
+                ->has('orderStatuses', 0)
+                ->has('leadTypes', 0)
+                ->has('paymentMethods', 0)
+                ->has('recentOrders', 0));
     }
 
     public function test_administrators_can_see_business_analytics(): void
