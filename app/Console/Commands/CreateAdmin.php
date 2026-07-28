@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Services\Access\AccessManager;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -22,7 +23,7 @@ class CreateAdmin extends Command
      */
     protected $description = 'Create or reactivate an administrator with a temporary password';
 
-    public function handle(): int
+    public function handle(AccessManager $accessManager): int
     {
         $password = Str::password(16);
         $email = Str::lower((string) $this->argument('email'));
@@ -35,8 +36,12 @@ class CreateAdmin extends Command
             'is_active' => true,
             'email_verified_at' => now(),
         ]);
-        $user->restore();
+        if ($user->exists && $user->trashed()) {
+            $user->restore();
+        }
+
         $user->save();
+        $user->access()->firstOrCreate([], ['accesses' => $accessManager->defaults()]);
 
         $this->info('Administrador criado com sucesso.');
         $this->line("E-mail: {$email}");

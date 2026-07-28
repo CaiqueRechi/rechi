@@ -1,36 +1,61 @@
 # Rechi
 
-Aplicação construída com Laravel 13 e o starter kit oficial React. Além da landing page principal, `/alt-tab` apresenta sinais pessoais de música, jogos, código e comunidade em uma interface cyberpunk clara/escura. A página não é vinculada pela index.
+Portfólio e aplicação pessoal construída com Laravel 13, Inertia 3, React 19 e TypeScript. O projeto reúne a landing page pública, as experiências `/alt-tab` e `/me`, dashboard privado, integrações e um Kanban colaborativo com controle centralizado de acesso.
 
 ## Stack
 
-- Laravel 13 e PHP 8.3
-- React 19 e TypeScript
-- Inertia 3
-- Tailwind CSS 4
-- shadcn/ui
+- PHP 8.3 e Laravel 13
+- React 19, TypeScript e Inertia 3
+- Tailwind CSS 4 e shadcn/ui
 - Laravel Fortify
-
-## Autenticação
-
-- Login e cadastro
-- Recuperação de senha
-- Verificação de e-mail
-- Autenticação em dois fatores
-- Passkeys
+- PHPUnit e Larastan
 
 ## Desenvolvimento
 
 ```bash
 composer install
 npm install
+copy .env.example .env
+php artisan key:generate
 php artisan migrate
 composer run dev
 ```
 
+Para validar uma alteração:
+
+```bash
+php artisan test --compact
+php vendor/bin/phpstan analyse --memory-limit=512M
+php vendor/bin/pint --dirty
+npm run lint
+npm run format:check
+npm run types:check
+npm run build
+```
+
+## Controle de acesso e Kanban
+
+As permissões são definidas em `config/access.php` e persistidas como JSON validado na tabela singular `access`. A interface, as rotas, as policies e o redirecionamento pós-login usam o mesmo catálogo. O campo legado `is_admin` não concede autorização.
+
+Configure o proprietário da instalação:
+
+```dotenv
+APP_OWNER_USER_ID=1
+```
+
+Depois sincronize os registros existentes:
+
+```bash
+php artisan access:sync
+```
+
+O proprietário tem acesso efetivo total e não pode ser rebaixado pela interface. Novos usuários recebem apenas os padrões seguros do catálogo. O dashboard permanece privado por padrão.
+
+O Kanban oferece quadros, participantes, colunas, cards, movimentação otimista, responsáveis, etiquetas, checklists, comentários, anexos privados e histórico de atividades. A documentação de arquitetura, segurança, permissões, deploy e rollback está em [`docs/ACCESS_AND_KANBAN.md`](docs/ACCESS_AND_KANBAN.md).
+
 ## ALT / TAB e integrações
 
-As configurações ficam disponíveis apenas para administradores em **General settings → App keys**.
+As configurações ficam disponíveis somente para usuários com `integration_settings.view` ou `integration_settings.update`, em **Configurações gerais → Chaves de aplicativos**.
 
 | Provedor | Conexão | Dados armazenados |
 | --- | --- | --- |
@@ -38,29 +63,21 @@ As configurações ficam disponíveis apenas para administradores em **General s
 | Steam | OpenID + Web API key | Steam ID, conta e jogos recentes |
 | Last.fm | API key + username | scrobbles recentes |
 | WakaTime | OAuth 2.0 | conta, tokens e resumos de código |
-| Discord | OAuth 2.0 + widget oficial do servidor | conta e membros/atividades públicas do widget |
+| Discord | OAuth 2.0 + widget oficial | conta e dados públicos do widget |
 
-Os serviços são APIs oficiais e confiáveis, mas continuam sujeitos a indisponibilidade, limites e mudanças dos provedores. Spotify pode exigir uma conta Premium para novos aplicativos; Discord usa somente OAuth e o widget oficial, sem simular presença pessoal por bot.
+Quando uma conexão ou seu histórico estiver vazio, `/alt-tab` mostra dados artificiais marcados como **demo** e **not connected**. Eles não são gravados no banco.
 
-### Cyber Garden
+### Credenciais das integrações
 
-Em desktops compatíveis, `/alt-tab` carrega dinamicamente um mundo 2D procedural em Canvas 2D. O personagem reage ao ponteiro enquanto chunks determinísticos criam a impressão de um jardim digital infinito. Mobile, redução de movimento e economia de dados usam apenas o fallback estático.
-
-A arquitetura, algoritmos, controles de performance e caminhos de evolução estão documentados em [`docs/CYBER_GARDEN.md`](docs/CYBER_GARDEN.md).
-
-Quando uma conexão ou seu histórico estiver vazio, `/alt-tab` mostra dados artificiais claramente marcados como **demo** e **not connected**. Esses exemplos não são gravados no banco e somem quando dados reais forem sincronizados.
-
-### Criptografia das credenciais
-
-Credenciais e tokens são armazenados em um único payload cifrado em `integration_connections.credentials`. O atributo fica oculto na serialização e usa uma chave exclusiva, separada de `APP_KEY`:
+Credenciais e tokens ficam cifrados em `integration_connections.credentials`, ocultos da serialização e protegidos por uma chave separada de `APP_KEY`:
 
 ```bash
 php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"
 ```
 
-Copie o resultado para `APP_SETTINGS_KEY` no `.env` de cada ambiente. Faça backup seguro dessa chave: perdê-la torna as credenciais existentes irrecuperáveis. Nunca a publique no Git e nunca a exponha ao frontend.
+Copie o valor para `APP_SETTINGS_KEY` no `.env`. Perder essa chave torna as credenciais existentes irrecuperáveis; nunca a publique no Git ou no frontend.
 
-Depois de configurar a URL final em `APP_URL`, cadastre estes callbacks nos painéis dos provedores:
+Os callbacks de produção são:
 
 ```text
 https://rechi.net.br/settings/general/app-keys/spotify/callback
@@ -68,21 +85,10 @@ https://rechi.net.br/settings/general/app-keys/wakatime/callback
 https://rechi.net.br/settings/general/app-keys/discord/callback
 ```
 
-O histórico normalizado é salvo em `integration_activities` e preservado ao desconectar uma conta. O botão **Synchronize** busca novos dados com timeout e tentativas curtas; os testes usam respostas HTTP artificiais e nunca chamam APIs reais.
+### Cyber Garden
 
-### Ativação em produção
+Em desktops compatíveis, `/alt-tab` usa um mundo 2D procedural em Canvas. Mobile, redução de movimento e economia de dados recebem um fallback estático. Consulte [`docs/CYBER_GARDEN.md`](docs/CYBER_GARDEN.md).
 
-Após publicar o código e adicionar `APP_SETTINGS_KEY` ao `.env` da Hostinger:
+## Produção
 
-```bash
-/opt/alt/php83/usr/bin/php artisan migrate --force
-/opt/alt/php83/usr/bin/php artisan optimize:clear
-```
-
-## Verificações
-
-```bash
-composer test
-npm run lint
-npm run build
-```
+Não versione o `.env`. Antes do deploy, configure `APP_OWNER_USER_ID`, `APP_SETTINGS_KEY` e `KANBAN_ATTACHMENTS_DISK`. A ordem segura completa, incluindo backup e rollback, está em [`docs/ACCESS_AND_KANBAN.md`](docs/ACCESS_AND_KANBAN.md#deploy-seguro).

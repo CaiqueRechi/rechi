@@ -7,7 +7,9 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -38,6 +40,42 @@ class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, SoftDeletes, TwoFactorAuthenticatable;
+
+    /** @return HasOne<Access, $this> */
+    public function access(): HasOne
+    {
+        return $this->hasOne(Access::class);
+    }
+
+    /** @return HasMany<AccessAudit, $this> */
+    public function accessChangesAuthored(): HasMany
+    {
+        return $this->hasMany(AccessAudit::class, 'actor_id');
+    }
+
+    /** @return HasMany<AccessAudit, $this> */
+    public function accessChangesReceived(): HasMany
+    {
+        return $this->hasMany(AccessAudit::class, 'subject_id');
+    }
+
+    /** @return HasMany<Board, $this> */
+    public function ownedBoards(): HasMany
+    {
+        return $this->hasMany(Board::class, 'owner_id');
+    }
+
+    /** @return BelongsToMany<Board, $this> */
+    public function boards(): BelongsToMany
+    {
+        return $this->belongsToMany(Board::class)->withPivot('role')->withTimestamps();
+    }
+
+    /** @return BelongsToMany<Card, $this> */
+    public function assignedCards(): BelongsToMany
+    {
+        return $this->belongsToMany(Card::class)->withTimestamps();
+    }
 
     /** @return HasMany<Order, $this> */
     public function orders(): HasMany

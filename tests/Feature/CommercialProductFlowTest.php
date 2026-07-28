@@ -37,9 +37,10 @@ class CommercialProductFlowTest extends TestCase
         $this->get(route('commercial-products.show', $product))->assertNotFound();
     }
 
-    public function test_admins_can_create_configurable_products(): void
+    public function test_authorized_users_can_create_configurable_products(): void
     {
-        $admin = User::factory()->admin()->create();
+        $admin = User::factory()->create();
+        $this->grantAccess($admin, ['commercial_products.create']);
 
         $this->actingAs($admin)->post(route('admin.commercial-products.store'), [
             'type' => 'landing_page',

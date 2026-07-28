@@ -23,18 +23,19 @@ class DashboardTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_authenticated_users_can_visit_the_dashboard(): void
+    public function test_authenticated_users_without_permission_cannot_visit_the_dashboard(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
 
         $response = $this->get(route('dashboard'));
-        $response->assertOk();
+        $response->assertForbidden();
     }
 
     public function test_dashboard_remains_available_while_business_tables_are_missing(): void
     {
         $user = User::factory()->create();
+        $this->grantAccess($user, ['dashboard.view']);
         $controller = $this->getMockBuilder(DashboardController::class)
             ->onlyMethods(['tableExists'])
             ->getMock();
@@ -64,7 +65,7 @@ class DashboardTest extends TestCase
 
     public function test_administrators_can_see_business_analytics(): void
     {
-        $admin = User::factory()->admin()->create();
+        $admin = $this->createOwner();
         $customer = User::factory()->create();
 
         $approvedOrder = Order::factory()->create([
@@ -114,9 +115,10 @@ class DashboardTest extends TestCase
                 ->has('recentOrders', 2));
     }
 
-    public function test_regular_users_only_see_their_own_analytics(): void
+    public function test_delegated_dashboard_viewers_see_the_business_dashboard_without_unrelated_integration_data(): void
     {
         $user = User::factory()->create();
+        $this->grantAccess($user, ['dashboard.view']);
         $otherUser = User::factory()->create();
 
         Order::factory()->create([
@@ -157,12 +159,12 @@ class DashboardTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->where('isAdminView', false)
-                ->where('summary.revenueCents', 30000)
-                ->where('summary.orderCount', 1)
-                ->where('summary.leadCount', 1)
+                ->where('isAdminView', true)
+                ->where('summary.revenueCents', 120000)
+                ->where('summary.orderCount', 2)
+                ->where('summary.leadCount', 2)
                 ->where('summary.approvalRate', 100)
                 ->where('summary.connectedIntegrations', null)
-                ->has('recentOrders', 1));
+                ->has('recentOrders', 2));
     }
 }

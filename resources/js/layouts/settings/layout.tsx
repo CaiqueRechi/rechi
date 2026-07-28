@@ -10,7 +10,7 @@ import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import { index as integrationSettings } from '@/routes/settings/integrations';
 import { edit as uploadFilesSettings } from '@/routes/settings/upload-files';
-import type { Auth, NavItem } from '@/types';
+import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
     {
@@ -32,22 +32,38 @@ const sidebarNavItems: NavItem[] = [
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
-    const { auth } = usePage<{ auth: Auth }>().props;
-    const visibleSidebarNavItems: NavItem[] = auth.user.is_admin
-        ? [
-              ...sidebarNavItems,
-              {
-                  title: 'General settings',
-                  href: integrationSettings(),
-                  icon: null,
-              },
-              {
-                  title: 'Upload files',
-                  href: uploadFilesSettings(),
-                  icon: null,
-              },
-          ]
-        : sidebarNavItems;
+    const { access } = usePage().props;
+    const visibleSidebarNavItems: NavItem[] = [
+        ...sidebarNavItems.filter((item) => {
+            if (item.title === 'Profile') {
+                return access?.permissions.account_settings?.profile;
+            }
+
+            if (item.title === 'Security') {
+                return access?.permissions.account_settings?.security;
+            }
+
+            return access?.permissions.account_settings?.appearance;
+        }),
+        ...(access?.permissions.integration_settings?.view
+            ? [
+                  {
+                      title: 'General settings',
+                      href: integrationSettings(),
+                      icon: null,
+                  },
+              ]
+            : []),
+        ...(access?.permissions.upload_settings?.view
+            ? [
+                  {
+                      title: 'Upload files',
+                      href: uploadFilesSettings(),
+                      icon: null,
+                  },
+              ]
+            : []),
+    ];
 
     return (
         <div className="px-4 py-6">

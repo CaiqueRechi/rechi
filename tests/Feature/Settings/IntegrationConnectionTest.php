@@ -22,7 +22,7 @@ class IntegrationConnectionTest extends TestCase
         config()->set('services.integrations.encryption_key', 'base64:'.base64_encode(str_repeat('s', 32)));
     }
 
-    public function test_only_admins_can_open_app_keys_settings(): void
+    public function test_only_authorized_users_can_open_app_keys_settings(): void
     {
         $this->get(route('settings.integrations.index'))->assertRedirect(route('login'));
 
@@ -30,7 +30,10 @@ class IntegrationConnectionTest extends TestCase
             ->get(route('settings.integrations.index'))
             ->assertForbidden();
 
-        $this->actingAs(User::factory()->admin()->create())
+        $authorized = User::factory()->create();
+        $this->grantAccess($authorized, ['integration_settings.view']);
+
+        $this->actingAs($authorized)
             ->get(route('settings.integrations.index'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
@@ -40,7 +43,11 @@ class IntegrationConnectionTest extends TestCase
 
     public function test_credentials_are_encrypted_and_never_returned_to_inertia(): void
     {
-        $admin = User::factory()->admin()->create();
+        $admin = User::factory()->create();
+        $this->grantAccess($admin, [
+            'integration_settings.view',
+            'integration_settings.update',
+        ]);
 
         $this->actingAs($admin)->put(route('settings.integrations.update'), [
             'provider' => 'spotify',
@@ -63,7 +70,11 @@ class IntegrationConnectionTest extends TestCase
 
     public function test_blank_secret_fields_preserve_existing_values(): void
     {
-        $admin = User::factory()->admin()->create();
+        $admin = User::factory()->create();
+        $this->grantAccess($admin, [
+            'integration_settings.view',
+            'integration_settings.update',
+        ]);
         IntegrationConnection::factory()->create([
             'provider' => IntegrationProvider::Spotify,
             'credentials' => ['client_id' => 'existing-id', 'client_secret' => 'existing-secret'],
@@ -108,7 +119,11 @@ class IntegrationConnectionTest extends TestCase
             ]),
         ]);
 
-        $admin = User::factory()->admin()->create();
+        $admin = User::factory()->create();
+        $this->grantAccess($admin, [
+            'integration_settings.view',
+            'integration_settings.update',
+        ]);
         IntegrationConnection::factory()->create([
             'provider' => IntegrationProvider::Spotify,
             'status' => 'configured',

@@ -64,7 +64,11 @@ class CheckoutController extends Controller
 
     public function order(Request $request, Order $order): Response
     {
-        abort_unless($request->user()?->is_admin || $order->user_id === $request->user()?->id, 403);
+        abort_unless(
+            $request->user()?->can('admin_orders.view')
+            || $order->user_id === $request->user()?->id,
+            403,
+        );
 
         $order->load(['items', 'payment', 'briefing.files', 'statusHistories' => fn ($query) => $query->latest()]);
 

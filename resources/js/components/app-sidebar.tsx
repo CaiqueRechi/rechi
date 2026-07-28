@@ -1,11 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
-    BookOpen,
-    FolderGit2,
+    Columns3,
+    Gauge,
+    KeyRound,
     LayoutGrid,
     Package,
     ReceiptText,
     Settings2,
+    ShieldCheck,
     UserPlus,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -21,57 +23,33 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
-import { index as integrationSettings } from '@/routes/settings/integrations';
-import { create as createUser } from '@/routes/users';
 import type { NavItem } from '@/types';
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
+const footerNavItems: NavItem[] = [];
+
+const navigationIcons = {
+    'dashboard.view': Gauge,
+    'kanban.view': Columns3,
+    'access_management.view': ShieldCheck,
+    'users.create': UserPlus,
+    'commercial_products.view': Package,
+    'admin_orders.view': ReceiptText,
+    'integration_settings.view': KeyRound,
+    'upload_settings.view': Settings2,
+} as const;
 
 export function AppSidebar() {
-    const { auth } = usePage().props;
-    const mainNavItems: NavItem[] = [
-        {
-            title: 'Dashboard',
-            href: dashboard(),
-            icon: LayoutGrid,
-        },
-        ...(auth.user.is_admin
-            ? [
-                  {
-                      title: 'Criar usuario',
-                      href: createUser(),
-                      icon: UserPlus,
-                  },
-                  {
-                      title: 'Produtos',
-                      href: '/admin/commercial-products',
-                      icon: Package,
-                  },
-                  {
-                      title: 'Pedidos',
-                      href: '/admin/orders',
-                      icon: ReceiptText,
-                  },
-                  {
-                      title: 'General settings',
-                      href: integrationSettings(),
-                      icon: Settings2,
-                  },
-              ]
-            : []),
-    ];
+    const { access } = usePage().props;
+    const mainNavItems: NavItem[] =
+        access?.navigation.map((item) => ({
+            title: item.label,
+            href: item.href,
+            icon:
+                navigationIcons[
+                    item.permission as keyof typeof navigationIcons
+                ] ?? LayoutGrid,
+        })) ?? [];
+    const homeHref = mainNavItems[0]?.href ?? '/no-access';
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -79,7 +57,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href={homeHref} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>

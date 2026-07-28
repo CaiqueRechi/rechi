@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
+use App\Services\Access\AccessManager;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,6 +37,23 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $access = null;
+
+        if ($user instanceof User) {
+            $accessManager = app(AccessManager::class);
+            $access = [
+                'isOwner' => $accessManager->isOwner($user),
+                'permissions' => $accessManager->permissionsFor($user),
+                'navigation' => collect($accessManager->navigationFor($user))
+                    ->map(fn (array $item): array => [
+                        ...$item,
+                        'href' => route($item['route']),
+                    ])
+                    ->all(),
+            ];
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -44,8 +63,9 @@ class HandleInertiaRequests extends Middleware
                 'defaultImageUrl' => asset('apple-touch-icon.png'),
             ],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
+            'access' => $access,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

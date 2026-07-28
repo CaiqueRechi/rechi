@@ -14,7 +14,7 @@ class UpdateIntegrationConnectionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return (bool) $this->user()?->is_admin;
+        return (bool) $this->user()?->can('integration_settings.update');
     }
 
     /**

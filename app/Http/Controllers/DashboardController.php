@@ -25,8 +25,9 @@ class DashboardController extends Controller
         $hasLeads = $this->tableExists('leads');
         $hasPayments = $this->tableExists('payments');
         $hasIntegrations = $this->tableExists('integration_connections');
-        $orders = $hasOrders ? $this->ordersFor($user) : null;
-        $leads = $hasLeads ? $this->leadsFor($user) : null;
+        $canViewIntegrations = $user->can('integration_settings.view');
+        $orders = $hasOrders ? $this->ordersFor() : null;
+        $leads = $hasLeads ? $this->leadsFor() : null;
         $approvedOrders = $orders
             ? (clone $orders)->where('payment_status', PaymentStatus::Approved->value)
             : null;
@@ -36,11 +37,11 @@ class DashboardController extends Controller
             'Pedidos' => $hasOrders,
             'Leads' => $hasLeads,
             'Pagamentos' => $hasPayments,
-            'Integrações' => ! $user->is_admin || $hasIntegrations,
+            'Integrações' => ! $canViewIntegrations || $hasIntegrations,
         ])->reject()->keys()->values()->all();
 
         return Inertia::render('dashboard', [
-            'isAdminView' => $user->is_admin,
+            'isAdminView' => true,
             'dataAvailability' => [
                 'isReady' => $missingSources === [],
                 'missingSources' => $missingSources,
@@ -54,7 +55,7 @@ class DashboardController extends Controller
                 'approvalRate' => $orderCount > 0
                     ? round(($approvedOrderCount / $orderCount) * 100, 1)
                     : 0,
-                'connectedIntegrations' => $user->is_admin && $hasIntegrations
+                'connectedIntegrations' => $canViewIntegrations && $hasIntegrations
                     ? IntegrationConnection::query()->where('status', 'connected')->count()
                     : null,
             ],
@@ -64,7 +65,7 @@ class DashboardController extends Controller
             'orderStatuses' => $orders ? $this->orderStatuses($orders) : [],
             'leadTypes' => $leads ? $this->leadTypes($leads) : [],
             'paymentMethods' => $hasOrders && $hasPayments
-                ? $this->paymentMethods($user)
+                ? $this->paymentMethods()
                 : [],
             'recentOrders' => $orders
                 ? (clone $orders)
@@ -91,21 +92,15 @@ class DashboardController extends Controller
     }
 
     /** @return Builder<Order> */
-    private function ordersFor(User $user): Builder
+    private function ordersFor(): Builder
     {
-        return Order::query()->when(
-            ! $user->is_admin,
-            fn (Builder $query) => $query->where('user_id', $user->id),
-        );
+        return Order::query();
     }
 
     /** @return Builder<Lead> */
-    private function leadsFor(User $user): Builder
+    private function leadsFor(): Builder
     {
-        return Lead::query()->when(
-            ! $user->is_admin,
-            fn (Builder $query) => $query->where('user_id', $user->id),
-        );
+        return Lead::query();
     }
 
     /**
@@ -120,7 +115,7 @@ class DashboardController extends Controller
 
                 return [
                     'label' => $month->translatedFormat('M'),
-                    'revenueCents' => (clone $orders)
+                    'revenueCents' => (int) (clone $orders)
                         ->where('payment_status', PaymentStatus::Approved->value)
                         ->whereBetween('paid_at', [$month, $month->copy()->endOfMonth()])
                         ->sum('total_cents'),
@@ -195,7 +190,7 @@ class DashboardController extends Controller
     }
 
     /** @return array<int, array{label: string, value: int}> */
-    private function paymentMethods(User $user): array
+    private function paymentMethods(): array
     {
         $labels = [
             'pix' => 'Pix',
@@ -206,10 +201,6 @@ class DashboardController extends Controller
         ];
 
         return Payment::query()
-            ->whereHas('order', fn (Builder $query) => $query->when(
-                ! $user->is_admin,
-                fn (Builder $scopedQuery) => $scopedQuery->where('user_id', $user->id),
-            ))
             ->selectRaw("COALESCE(method, 'unknown') as payment_method, count(*) as aggregate")
             ->groupBy('payment_method')
             ->orderByDesc('aggregate')

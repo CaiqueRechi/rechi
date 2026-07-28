@@ -21,7 +21,7 @@ class UpdateCommercialProductRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return (bool) $this->user()?->is_admin;
+        return (bool) $this->user()?->can('commercial_products.update');
     }
 
     /**

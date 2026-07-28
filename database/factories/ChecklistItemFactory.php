@@ -1,0 +1,28 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Checklist;
+use App\Models\ChecklistItem;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<ChecklistItem>
+ */
+class ChecklistItemFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'checklist_id' => Checklist::factory(),
+            'content' => fake()->sentence(5),
+            'position' => fake()->numberBetween(1, 1000),
+            'completed_at' => null,
+        ];
+    }
+}

@@ -30,18 +30,20 @@ class UserCreationTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_admins_can_access_user_creation(): void
+    public function test_authorized_users_can_access_user_creation(): void
     {
-        $admin = User::factory()->admin()->create();
+        $admin = User::factory()->create();
+        $this->grantAccess($admin, ['users.create']);
 
         $this->actingAs($admin)
             ->get(route('users.create'))
             ->assertOk();
     }
 
-    public function test_admins_can_create_users(): void
+    public function test_authorized_users_can_create_users(): void
     {
-        $admin = User::factory()->admin()->create();
+        $admin = User::factory()->create();
+        $this->grantAccess($admin, ['users.create']);
 
         $this->actingAs($admin)
             ->post(route('users.store'), [
@@ -55,6 +57,9 @@ class UserCreationTest extends TestCase
         $this->assertDatabaseHas('users', [
             'email' => 'novo@example.com',
             'is_admin' => false,
+        ]);
+        $this->assertDatabaseHas('access', [
+            'user_id' => User::query()->where('email', 'novo@example.com')->value('id'),
         ]);
     }
 
@@ -74,5 +79,22 @@ class UserCreationTest extends TestCase
         $this->assertDatabaseMissing('users', [
             'email' => 'novo@example.com',
         ]);
+    }
+
+    public function test_admin_command_creates_a_new_user_with_safe_access_defaults(): void
+    {
+        $this->artisan('app:create-admin', [
+            'name' => 'Usuário Demo',
+            'email' => 'demo@rechi.test',
+        ])->assertSuccessful();
+
+        $user = User::query()->where('email', 'demo@rechi.test')->firstOrFail();
+
+        $this->assertTrue($user->is_admin);
+        $this->assertTrue($user->is_active);
+        $this->assertNotNull($user->email_verified_at);
+        $this->assertDatabaseHas('access', ['user_id' => $user->id]);
+        $this->assertTrue($user->access()->firstOrFail()->accesses['kanban']['view']);
+        $this->assertFalse($user->access()->firstOrFail()->accesses['dashboard']['view']);
     }
 }

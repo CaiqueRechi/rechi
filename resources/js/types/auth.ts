@@ -19,6 +19,19 @@ export type Auth = {
     user: User;
 };
 
+export type AccessNavigationItem = {
+    label: string;
+    route: string;
+    permission: string;
+    href: string;
+};
+
+export type Access = {
+    isOwner: boolean;
+    permissions: Record<string, Record<string, boolean>>;
+    navigation: AccessNavigationItem[];
+};
+
 /* @chisel-passkeys */
 export type Passkey = {
     id: number;
