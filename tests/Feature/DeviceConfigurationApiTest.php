@@ -55,12 +55,38 @@ class DeviceConfigurationApiTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_tampered_insecure_profile_url_fails_closed(): void
+    public function test_http_profile_url_is_allowed_in_device_configuration(): void
+    {
+        [$profile, $device] = $this->activeDevice('http://portal.example.com/');
+
+        $response = $this->withHeader('Accept', 'application/jwt')
+            ->get(route('api.v1.devices.configuration', $device->device_uuid))
+            ->assertOk();
+
+        [, $claims] = $this->decodeToken($response->getContent());
+
+        $this->assertSame($profile->config['url'], $claims['url']);
+    }
+
+    public function test_bare_profile_domain_is_normalized_in_device_configuration(): void
+    {
+        [, $device] = $this->activeDevice('portal.example.com');
+
+        $response = $this->withHeader('Accept', 'application/jwt')
+            ->get(route('api.v1.devices.configuration', $device->device_uuid))
+            ->assertOk();
+
+        [, $claims] = $this->decodeToken($response->getContent());
+
+        $this->assertSame('http://portal.example.com', $claims['url']);
+    }
+
+    public function test_tampered_invalid_profile_url_fails_closed(): void
     {
         [$profile, $device] = $this->activeDevice('https://portal.example.com/');
 
         DeviceProfile::withoutEvents(fn () => $profile->update([
-            'config' => ['url' => 'http://insecure.example.com/'],
+            'config' => ['url' => 'ftp://portal.example.com/'],
         ]));
 
         $this->get(route('api.v1.devices.configuration', $device->device_uuid))

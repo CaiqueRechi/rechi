@@ -228,9 +228,10 @@ export default function DeviceProfileForm({
                                                     Modo quiosque
                                                 </h3>
                                                 <p className="mt-1 text-xs text-muted-foreground">
-                                                    A URL HTTPS será enviada no
-                                                    JWT somente para UUIDs
-                                                    autorizados.
+                                                    A URL do portal sera enviada
+                                                    no JWT somente para UUIDs
+                                                    autorizados. HTTP e HTTPS
+                                                    sao aceitos.
                                                 </p>
                                             </div>
                                         </div>
@@ -241,12 +242,12 @@ export default function DeviceProfileForm({
                                             <Input
                                                 id="config_url"
                                                 name="config[url]"
-                                                type="url"
+                                                type="text"
                                                 inputMode="url"
                                                 defaultValue={
                                                     profile?.config.url
                                                 }
-                                                placeholder="https://portal.exemplo.com/"
+                                                placeholder="portal.exemplo.com ou http://portal.exemplo.com/"
                                                 maxLength={2048}
                                                 required
                                                 disabled={

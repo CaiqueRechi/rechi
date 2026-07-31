@@ -70,9 +70,10 @@ class DeviceConfigurationIssuer
         $url = match ($device->profile->type) {
             DeviceProfileType::Kiosk => data_get($device->profile->config, 'url'),
         };
+        $url = SecureHttpsUrl::normalize($url);
 
         if (! SecureHttpsUrl::isValid($url)) {
-            throw new RuntimeException('The kiosk profile does not contain a secure URL.');
+            throw new RuntimeException('The kiosk profile does not contain a valid HTTP or HTTPS URL.');
         }
 
         return $url;

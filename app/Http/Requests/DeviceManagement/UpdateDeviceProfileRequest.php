@@ -11,6 +11,16 @@ use Illuminate\Validation\Rule;
 
 class UpdateDeviceProfileRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $config = $this->input('config', []);
+
+        if (is_array($config) && array_key_exists('url', $config)) {
+            $config['url'] = SecureHttpsUrl::normalize($config['url']) ?? $config['url'];
+            $this->merge(['config' => $config]);
+        }
+    }
+
     public function authorize(): bool
     {
         return $this->user() !== null

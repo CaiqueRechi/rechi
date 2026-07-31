@@ -58,13 +58,40 @@ class DeviceProfileManagementTest extends TestCase
         ]);
     }
 
-    public function test_kiosk_profile_rejects_insecure_urls_credentials_and_unknown_config(): void
+    public function test_kiosk_profile_accepts_http_and_bare_domains(): void
+    {
+        $user = User::factory()->create();
+        $this->grantAccess($user, [
+            'device_profiles.view',
+            'device_profiles.create',
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('admin.device-profiles.store'), [
+                'name' => 'Quiosque interno',
+                'slug' => 'quiosque-interno',
+                'type' => 'kiosk',
+                'description' => 'Portal interno.',
+                'is_active' => true,
+                'config' => ['url' => 'hubibiporahomolog.grupoibipora.local'],
+            ])
+            ->assertRedirect();
+
+        $profile = DeviceProfile::query()->firstOrFail();
+
+        $this->assertSame(
+            ['url' => 'http://hubibiporahomolog.grupoibipora.local'],
+            $profile->config,
+        );
+    }
+
+    public function test_kiosk_profile_rejects_invalid_urls_credentials_and_unknown_config(): void
     {
         $user = User::factory()->create();
         $this->grantAccess($user, ['device_profiles.create']);
 
         foreach ([
-            ['url' => 'http://portal.example.com/'],
+            ['url' => 'ftp://portal.example.com/'],
             ['url' => 'https://user:secret@portal.example.com/'],
             ['url' => 'https://portal.example.com/', 'privateKey' => 'must-not-be-here'],
         ] as $config) {
