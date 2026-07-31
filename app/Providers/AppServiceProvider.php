@@ -9,10 +9,13 @@ use App\Services\Payments\MercadoPagoPaymentGateway;
 use App\Services\Payments\PaymentGatewayInterface;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
@@ -35,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureAccessGates();
+        $this->configureRateLimiting();
 
         Event::listen(Login::class, function (Login $event): void {
             if ($event->user instanceof User) {
@@ -43,6 +47,18 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->configureDefaults();
+    }
+
+    private function configureRateLimiting(): void
+    {
+        RateLimiter::for('device-configuration', function (Request $request): array {
+            $deviceId = strtolower((string) $request->route('deviceId'));
+
+            return [
+                Limit::perMinute(30)->by('device-ip:'.$request->ip()),
+                Limit::perMinute(10)->by('device-id:'.hash('sha256', $deviceId)),
+            ];
+        });
     }
 
     private function configureAccessGates(): void
