@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\AccessManagementController;
+use App\Http\Controllers\Admin\DeviceProfileController;
+use App\Http\Controllers\Admin\ManagedDeviceController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AltTabController;
@@ -98,6 +100,33 @@ Route::middleware(['auth', 'active', 'verified'])->group(function () {
     Route::put('admin/access/{user}', [AccessManagementController::class, 'update'])
         ->middleware('access:access_management.update')
         ->name('admin.access.update');
+
+    Route::prefix('admin/device-profiles')->name('admin.device-profiles.')->group(function () {
+        Route::get('/', [DeviceProfileController::class, 'index'])
+            ->middleware('access:device_profiles.view')
+            ->name('index');
+        Route::get('create', [DeviceProfileController::class, 'create'])
+            ->middleware('access:device_profiles.create')
+            ->name('create');
+        Route::post('/', [DeviceProfileController::class, 'store'])
+            ->middleware('access:device_profiles.create')
+            ->name('store');
+        Route::get('{deviceProfile}/edit', [DeviceProfileController::class, 'edit'])
+            ->middleware('access:device_profiles.view')
+            ->name('edit');
+        Route::put('{deviceProfile}', [DeviceProfileController::class, 'update'])
+            ->middleware('access:device_profiles.update')
+            ->name('update');
+        Route::delete('{deviceProfile}', [DeviceProfileController::class, 'destroy'])
+            ->middleware('access:device_profiles.delete')
+            ->name('destroy');
+        Route::post('{deviceProfile}/devices', [ManagedDeviceController::class, 'store'])
+            ->middleware('access:device_profiles.manage_devices')
+            ->name('devices.store');
+        Route::delete('devices/{managedDevice}', [ManagedDeviceController::class, 'destroy'])
+            ->middleware('access:device_profiles.manage_devices')
+            ->name('devices.destroy');
+    });
 
     Route::prefix('kanban')->name('kanban.')->middleware('access:kanban.view')->group(function () {
         Route::get('boards', [BoardController::class, 'index'])->name('boards.index');

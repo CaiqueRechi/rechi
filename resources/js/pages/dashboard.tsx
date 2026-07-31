@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import {
     ArrowUpRight,
     BarChart3,
@@ -6,10 +6,12 @@ import {
     DatabaseZap,
     Link2,
     ReceiptText,
+    Smartphone,
     Target,
     UsersRound,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/money';
 import { dashboard } from '@/routes';
 
@@ -69,6 +71,7 @@ export default function Dashboard({
     paymentMethods,
     recentOrders,
 }: DashboardProps) {
+    const { access } = usePage().props;
     const summaryCards = [
         {
             label: 'Receita aprovada',
@@ -122,21 +125,33 @@ export default function Dashboard({
                             mostrar volume, valor, distribuição e movimento.
                         </p>
                     </div>
-                    {isAdminView && summary.connectedIntegrations !== null && (
-                        <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3">
-                            <span className="grid size-9 place-items-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                <Link2 className="size-4" />
-                            </span>
-                            <div>
-                                <strong className="block text-sm">
-                                    {summary.connectedIntegrations} integrações
-                                </strong>
-                                <span className="text-xs text-muted-foreground">
-                                    conectadas agora
-                                </span>
-                            </div>
-                        </div>
-                    )}
+                    <div className="flex flex-wrap items-center gap-3">
+                        {access?.permissions.device_profiles?.view && (
+                            <Button asChild variant="outline">
+                                <Link href="/admin/device-profiles">
+                                    <Smartphone className="size-4" />
+                                    Profile management
+                                </Link>
+                            </Button>
+                        )}
+                        {isAdminView &&
+                            summary.connectedIntegrations !== null && (
+                                <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3">
+                                    <span className="grid size-9 place-items-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                        <Link2 className="size-4" />
+                                    </span>
+                                    <div>
+                                        <strong className="block text-sm">
+                                            {summary.connectedIntegrations}{' '}
+                                            integrações
+                                        </strong>
+                                        <span className="text-xs text-muted-foreground">
+                                            conectadas agora
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                    </div>
                 </header>
 
                 {!dataAvailability.isReady && (

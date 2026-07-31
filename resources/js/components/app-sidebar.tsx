@@ -8,6 +8,7 @@ import {
     ReceiptText,
     Settings2,
     ShieldCheck,
+    Smartphone,
     UserPlus,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -30,6 +31,7 @@ const footerNavItems: NavItem[] = [];
 const navigationIcons = {
     'dashboard.view': Gauge,
     'kanban.view': Columns3,
+    'device_profiles.view': Smartphone,
     'access_management.view': ShieldCheck,
     'users.create': UserPlus,
     'commercial_products.view': Package,

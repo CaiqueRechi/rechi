@@ -38,6 +38,17 @@ return [
                 'manage_attachments' => ['label' => 'Gerenciar anexos', 'default' => true],
             ],
         ],
+        'device_profiles' => [
+            'label' => 'Profile management',
+            'navigation' => ['label' => 'Device profiles', 'route' => 'admin.device-profiles.index'],
+            'permissions' => [
+                'view' => ['label' => 'Visualizar profiles de dispositivos', 'default' => false, 'critical' => true],
+                'create' => ['label' => 'Criar profiles de dispositivos', 'default' => false, 'critical' => true],
+                'update' => ['label' => 'Alterar profiles de dispositivos', 'default' => false, 'critical' => true],
+                'delete' => ['label' => 'Remover profiles de dispositivos', 'default' => false, 'critical' => true],
+                'manage_devices' => ['label' => 'Vincular e revogar dispositivos', 'default' => false, 'critical' => true],
+            ],
+        ],
         'access_management' => [
             'label' => 'Controle de acessos',
             'navigation' => ['label' => 'Controle de acessos', 'route' => 'admin.access.index'],
