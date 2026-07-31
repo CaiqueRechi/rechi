@@ -53,6 +53,15 @@ O proprietário tem acesso efetivo total e não pode ser rebaixado pela interfac
 
 O Kanban oferece quadros, participantes, colunas, cards, movimentação otimista, responsáveis, etiquetas, checklists, comentários, anexos privados e histórico de atividades. A documentação de arquitetura, segurança, permissões, deploy e rollback está em [`docs/ACCESS_AND_KANBAN.md`](docs/ACCESS_AND_KANBAN.md).
 
+## Device profile management
+
+O painel administrativo inclui profiles extensíveis para dispositivos MDM. O primeiro tipo,
+`kiosk`, associa UUIDs previamente autorizados a uma URL HTTPS e entrega a configuração em JWT
+`RS256` de curta duração. UUIDs são cifrados em repouso e localizados por índice cego HMAC.
+
+Contrato da API, gestão de chaves, modelo de dados, rotação e deploy estão documentados em
+[`docs/DEVICE_PROFILE_MANAGEMENT.md`](docs/DEVICE_PROFILE_MANAGEMENT.md).
+
 ## ALT / TAB e integrações
 
 As configurações ficam disponíveis somente para usuários com `integration_settings.view` ou `integration_settings.update`, em **Configurações gerais → Chaves de aplicativos**.
