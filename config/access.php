@@ -39,8 +39,8 @@ return [
             ],
         ],
         'device_profiles' => [
-            'label' => 'Profile management',
-            'navigation' => ['label' => 'Device profiles', 'route' => 'admin.device-profiles.index'],
+            'label' => 'Configuração MDM',
+            'navigation' => ['label' => 'Configuração MDM', 'route' => 'admin.device-profiles.index'],
             'permissions' => [
                 'view' => ['label' => 'Visualizar profiles de dispositivos', 'default' => false, 'critical' => true],
                 'create' => ['label' => 'Criar profiles de dispositivos', 'default' => false, 'critical' => true],

@@ -18,7 +18,7 @@ import {
     Sun,
     Terminal,
     Wrench,
-} from 'lucide-react';
+} from '@/components/bootstrap-icons';
 import InputError from '@/components/input-error';
 import SeoHead from '@/components/seo-head';
 import { Button } from '@/components/ui/button';

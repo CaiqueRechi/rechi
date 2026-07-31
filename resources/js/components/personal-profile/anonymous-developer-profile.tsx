@@ -1,4 +1,4 @@
-import { Braces, Clock3, Code2, EyeOff, SquareTerminal } from 'lucide-react';
+import { Braces, Clock3, Code2, EyeOff, SquareTerminal } from '@/components/bootstrap-icons';
 import { formatCodingTime } from '@/components/personal-profile/types';
 import type { ProfileIntegration } from '@/components/personal-profile/types';
 

@@ -8,7 +8,7 @@ import {
     Mail,
     Menu,
     Sparkles,
-} from 'lucide-react';
+} from '@/components/bootstrap-icons';
 import { useState } from 'react';
 import SeoHead from '@/components/seo-head';
 import { dashboard, login } from '@/routes';

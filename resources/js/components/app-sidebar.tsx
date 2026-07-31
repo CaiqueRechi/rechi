@@ -10,7 +10,7 @@ import {
     ShieldCheck,
     Smartphone,
     UserPlus,
-} from 'lucide-react';
+} from '@/components/bootstrap-icons';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -40,17 +40,32 @@ const navigationIcons = {
     'upload_settings.view': Settings2,
 } as const;
 
+const navigationPriority = {
+    'dashboard.view': 0,
+    'device_profiles.view': 1,
+    'kanban.view': 2,
+} as const;
+
 export function AppSidebar() {
     const { access } = usePage().props;
-    const mainNavItems: NavItem[] =
-        access?.navigation.map((item) => ({
-            title: item.label,
-            href: item.href,
-            icon:
-                navigationIcons[
-                    item.permission as keyof typeof navigationIcons
-                ] ?? LayoutGrid,
-        })) ?? [];
+    const sortedNavigation = access?.navigation
+        ? [...access.navigation].sort(
+              (first, second) =>
+                  (navigationPriority[
+                      first.permission as keyof typeof navigationPriority
+                  ] ?? 50) -
+                  (navigationPriority[
+                      second.permission as keyof typeof navigationPriority
+                  ] ?? 50),
+          )
+        : [];
+    const mainNavItems: NavItem[] = sortedNavigation.map((item) => ({
+        title: item.label,
+        href: item.href,
+        icon:
+            navigationIcons[item.permission as keyof typeof navigationIcons] ??
+            LayoutGrid,
+    }));
     const homeHref = mainNavItems[0]?.href ?? '/no-access';
 
     return (

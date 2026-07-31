@@ -1,7 +1,7 @@
-import type { LucideIcon } from 'lucide-react';
+import type { BootstrapIcon } from '@/components/bootstrap-icons';
 
 interface IconProps {
-    iconNode?: LucideIcon | null;
+    iconNode?: BootstrapIcon | null;
     className?: string;
 }
 

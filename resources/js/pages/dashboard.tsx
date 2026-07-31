@@ -9,8 +9,8 @@ import {
     Smartphone,
     Target,
     UsersRound,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+} from '@/components/bootstrap-icons';
+import type { BootstrapIcon } from '@/components/bootstrap-icons';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/money';
 import { dashboard } from '@/routes';
@@ -315,7 +315,7 @@ function MetricCard({
     label: string;
     value: string;
     hint: string;
-    icon: LucideIcon;
+    icon: BootstrapIcon;
     accent: string;
 }) {
     return (

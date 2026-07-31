@@ -1,5 +1,5 @@
-import { Clock3, Gamepad2, Monitor, Trophy } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Clock3, Gamepad2, Monitor, Trophy } from '@/components/bootstrap-icons';
+import type { BootstrapIcon } from '@/components/bootstrap-icons';
 import { formatHours } from '@/components/personal-profile/types';
 import type {
     ProfileActivity,
@@ -67,7 +67,7 @@ export default function SteamShowcase({ integration }: SteamShowcaseProps) {
     const stats: Array<{
         label: string;
         value: string;
-        icon: LucideIcon;
+        icon: BootstrapIcon;
     }> = [
         {
             label: 'games sampled',

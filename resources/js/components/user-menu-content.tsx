@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings } from '@/components/bootstrap-icons';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,

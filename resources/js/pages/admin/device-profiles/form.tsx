@@ -8,7 +8,7 @@ import {
     ShieldCheck,
     Smartphone,
     Trash2,
-} from 'lucide-react';
+} from '@/components/bootstrap-icons';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';

@@ -12,6 +12,7 @@ class PostLoginRedirector
     {
         foreach ([
             'dashboard.view' => 'dashboard',
+            'device_profiles.view' => 'admin.device-profiles.index',
             'kanban.view' => 'kanban.boards.index',
         ] as $permission => $routeName) {
             if ($this->accessManager->allows($user, $permission)) {

@@ -1,4 +1,4 @@
-import { KeyRound, Trash2 } from 'lucide-react';
+import { KeyRound, Trash2 } from '@/components/bootstrap-icons';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {

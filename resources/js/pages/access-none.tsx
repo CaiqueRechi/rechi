@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { LockKeyhole, LogOut } from 'lucide-react';
+import { LockKeyhole, LogOut } from '@/components/bootstrap-icons';
 import { Button } from '@/components/ui/button';
 import { logout } from '@/routes';
 

@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle } from '@/components/bootstrap-icons';
 import { Button } from '@/components/ui/button';
 import SeoHead from '@/components/seo-head';
 import { formatCurrency } from '@/lib/money';

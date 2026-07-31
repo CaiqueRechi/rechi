@@ -25,7 +25,7 @@ class InstallFeaturesCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Choose which starter kit features to keep';
+    protected $description = 'Choose which rechi features to keep';
 
     public function handle(): int
     {

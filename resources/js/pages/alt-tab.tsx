@@ -9,8 +9,8 @@ import {
     Sun,
     WifiOff,
     Zap,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+} from '@/components/bootstrap-icons';
+import type { BootstrapIcon } from '@/components/bootstrap-icons';
 import { useState } from 'react';
 import CyberGardenInterlude from '@/components/cyber-garden-interlude';
 import ProceduralBackground from '@/components/procedural-background';
@@ -45,7 +45,7 @@ type PageProps = {
 
 const providerStyles: Record<
     string,
-    { icon: LucideIcon; accent: string; code: string }
+    { icon: BootstrapIcon; accent: string; code: string }
 > = {
     spotify: {
         icon: Headphones,

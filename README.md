@@ -1,4 +1,4 @@
-# Rechi
+# rechi
 
 Portfólio e aplicação pessoal construída com Laravel 13, Inertia 3, React 19 e TypeScript. O projeto reúne a landing page pública, as experiências `/alt-tab` e `/me`, dashboard privado, integrações e um Kanban colaborativo com controle centralizado de acesso.
 

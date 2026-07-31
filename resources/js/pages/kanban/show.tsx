@@ -31,7 +31,7 @@ import {
     Trash2,
     UserRoundPlus,
     Users,
-} from 'lucide-react';
+} from '@/components/bootstrap-icons';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';

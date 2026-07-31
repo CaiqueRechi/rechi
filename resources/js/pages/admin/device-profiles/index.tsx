@@ -5,7 +5,7 @@ import {
     Plus,
     Search,
     ShieldCheck,
-} from 'lucide-react';
+} from '@/components/bootstrap-icons';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

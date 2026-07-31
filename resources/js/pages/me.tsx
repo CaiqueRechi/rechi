@@ -14,8 +14,8 @@ import {
     Skull,
     Sparkles,
     Terminal,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+} from '@/components/bootstrap-icons';
+import type { BootstrapIcon } from '@/components/bootstrap-icons';
 import AnonymousDeveloperProfile from '@/components/personal-profile/anonymous-developer-profile';
 import ConnectedApiRail from '@/components/personal-profile/connected-api-rail';
 import GalaxyBackground from '@/components/personal-profile/galaxy-background';
@@ -50,7 +50,7 @@ const achievementSlots = [
 
 const chapterStyles: Record<
     string,
-    { icon: LucideIcon; marker: string; text: string }
+    { icon: BootstrapIcon; marker: string; text: string }
 > = {
     play: {
         icon: Gamepad2,

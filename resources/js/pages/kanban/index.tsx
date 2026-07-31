@@ -8,7 +8,7 @@ import {
     Search,
     Sparkles,
     Users,
-} from 'lucide-react';
+} from '@/components/bootstrap-icons';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {

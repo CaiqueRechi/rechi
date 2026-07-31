@@ -6,15 +6,15 @@ import {
     Radio,
     Signal,
     SignalZero,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+} from '@/components/bootstrap-icons';
+import type { BootstrapIcon } from '@/components/bootstrap-icons';
 import type { ProfileIntegration } from '@/components/personal-profile/types';
 
 type ConnectedApiRailProps = {
     integrations: Record<string, ProfileIntegration>;
 };
 
-const providerIcons: Record<string, LucideIcon> = {
+const providerIcons: Record<string, BootstrapIcon> = {
     spotify: Headphones,
     steam: Gamepad2,
     wakatime: Code2,
