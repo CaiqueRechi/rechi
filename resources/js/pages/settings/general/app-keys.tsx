@@ -1,5 +1,11 @@
 import { Form, Head } from '@inertiajs/react';
-import { KeyRound, Link2, RefreshCw, ShieldCheck, Unplug } from '@/components/bootstrap-icons';
+import {
+    KeyRound,
+    Link2,
+    RefreshCw,
+    ShieldCheck,
+    Unplug,
+} from '@/components/bootstrap-icons';
 import IntegrationConnectionController from '@/actions/App/Http/Controllers/Settings/IntegrationConnectionController';
 import IntegrationOAuthController from '@/actions/App/Http/Controllers/Settings/IntegrationOAuthController';
 import Heading from '@/components/heading';

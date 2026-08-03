@@ -1,6 +1,6 @@
-import { Eye, EyeOff } from '@/components/bootstrap-icons';
 import type { ComponentProps, Ref } from 'react';
 import { useState } from 'react';
+import { Eye, EyeOff } from '@/components/bootstrap-icons';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 

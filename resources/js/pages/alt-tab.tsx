@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
     Activity,
     Code2,
@@ -11,7 +12,6 @@ import {
     Zap,
 } from '@/components/bootstrap-icons';
 import type { BootstrapIcon } from '@/components/bootstrap-icons';
-import { useState } from 'react';
 import CyberGardenInterlude from '@/components/cyber-garden-interlude';
 import ProceduralBackground from '@/components/procedural-background';
 import SeoHead from '@/components/seo-head';

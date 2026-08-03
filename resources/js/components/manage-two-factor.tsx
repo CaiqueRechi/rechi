@@ -1,6 +1,6 @@
 import { Form } from '@inertiajs/react';
-import { ShieldCheck } from '@/components/bootstrap-icons';
 import { useEffect, useRef, useState } from 'react';
+import { ShieldCheck } from '@/components/bootstrap-icons';
 import Heading from '@/components/heading';
 import TwoFactorRecoveryCodes from '@/components/two-factor-recovery-codes';
 import TwoFactorSetupModal from '@/components/two-factor-setup-modal';

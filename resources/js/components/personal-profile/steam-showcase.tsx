@@ -1,4 +1,9 @@
-import { Clock3, Gamepad2, Monitor, Trophy } from '@/components/bootstrap-icons';
+import {
+    Clock3,
+    Gamepad2,
+    Monitor,
+    Trophy,
+} from '@/components/bootstrap-icons';
 import type { BootstrapIcon } from '@/components/bootstrap-icons';
 import { formatHours } from '@/components/personal-profile/types';
 import type {

@@ -1,4 +1,5 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { useMemo, useState } from 'react';
 import {
     Check,
     Search,
@@ -6,7 +7,6 @@ import {
     ShieldQuestion,
     UserCog,
 } from '@/components/bootstrap-icons';
-import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';

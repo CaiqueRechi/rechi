@@ -47,10 +47,7 @@ export const CalendarDays = bootstrapIcon('calendar-date', 'CalendarDays');
 export const Check = bootstrapIcon('check', 'Check');
 export const CheckCircle2 = bootstrapIcon('check-circle', 'CheckCircle2');
 export const CheckIcon = bootstrapIcon('check', 'CheckIcon');
-export const ChevronDownIcon = bootstrapIcon(
-    'chevron-down',
-    'ChevronDownIcon',
-);
+export const ChevronDownIcon = bootstrapIcon('chevron-down', 'ChevronDownIcon');
 export const ChevronLeft = bootstrapIcon('chevron-left', 'ChevronLeft');
 export const ChevronRight = bootstrapIcon('chevron-right', 'ChevronRight');
 export const ChevronRightIcon = bootstrapIcon(
@@ -58,10 +55,7 @@ export const ChevronRightIcon = bootstrapIcon(
     'ChevronRightIcon',
 );
 export const ChevronUpIcon = bootstrapIcon('chevron-up', 'ChevronUpIcon');
-export const ChevronsUpDown = bootstrapIcon(
-    'chevron-expand',
-    'ChevronsUpDown',
-);
+export const ChevronsUpDown = bootstrapIcon('chevron-expand', 'ChevronsUpDown');
 export const CircleDollarSign = bootstrapIcon(
     'currency-dollar',
     'CircleDollarSign',
@@ -75,10 +69,7 @@ export const Copy = bootstrapIcon('copy', 'Copy');
 export const Database = bootstrapIcon('database', 'Database');
 export const DatabaseZap = bootstrapIcon('database-fill', 'DatabaseZap');
 export const Download = bootstrapIcon('download', 'Download');
-export const ExternalLink = bootstrapIcon(
-    'box-arrow-up-right',
-    'ExternalLink',
-);
+export const ExternalLink = bootstrapIcon('box-arrow-up-right', 'ExternalLink');
 export const Eye = bootstrapIcon('eye', 'Eye');
 export const EyeOff = bootstrapIcon('eye-slash', 'EyeOff');
 export const FileText = bootstrapIcon('file-text', 'FileText');

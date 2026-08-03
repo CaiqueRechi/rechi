@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import {
     ArrowDown,
     ArrowUpRight,
@@ -9,7 +10,6 @@ import {
     Menu,
     Sparkles,
 } from '@/components/bootstrap-icons';
-import { useState } from 'react';
 import SeoHead from '@/components/seo-head';
 import { dashboard, login } from '@/routes';
 

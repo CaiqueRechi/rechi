@@ -1,6 +1,6 @@
+import type { HTMLAttributes } from 'react';
 import type { BootstrapIcon } from '@/components/bootstrap-icons';
 import { Monitor, Moon, Sun } from '@/components/bootstrap-icons';
-import type { HTMLAttributes } from 'react';
 import type { Appearance } from '@/hooks/use-appearance';
 import { useAppearance } from '@/hooks/use-appearance';
 import { cn } from '@/lib/utils';

@@ -1,4 +1,5 @@
 import { Form, Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 import {
     Archive,
     ArrowRight,
@@ -9,7 +10,6 @@ import {
     Sparkles,
     Users,
 } from '@/components/bootstrap-icons';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,

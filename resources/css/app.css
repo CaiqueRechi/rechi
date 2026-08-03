@@ -142,6 +142,120 @@
     }
 }
 
+.rechi-home {
+    --rechi-ink: #1d161f;
+    --rechi-purple: #533d64;
+    --rechi-orange: #db633a;
+    --rechi-gold: #d4a047;
+    --rechi-cream: #ffeca5;
+    --color-background: color-mix(in srgb, var(--rechi-cream) 58%, white);
+    --color-surface: color-mix(in srgb, var(--rechi-cream) 42%, white);
+    --color-surface-elevated: color-mix(in srgb, var(--rechi-cream) 22%, white);
+    --color-text: var(--rechi-ink);
+    --color-text-muted: color-mix(in srgb, var(--rechi-ink) 68%, white);
+    --color-primary: var(--rechi-orange);
+    --color-accent: var(--rechi-gold);
+    --color-border: color-mix(in srgb, var(--rechi-purple) 42%, transparent);
+    --color-focus: var(--rechi-orange);
+    --color-danger: #a7372c;
+    --color-brand-plate: var(--rechi-cream);
+    --shadow-color: 29 22 31;
+    color-scheme: light;
+    background:
+        radial-gradient(
+            circle at top left,
+            color-mix(in srgb, var(--rechi-gold) 20%, transparent),
+            transparent 34rem
+        ),
+        var(--color-background);
+    color: var(--color-text);
+    font-family:
+        'Instrument Sans',
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        sans-serif;
+}
+
+.dark .rechi-home {
+    --color-background: var(--rechi-ink);
+    --color-surface: color-mix(
+        in srgb,
+        var(--rechi-ink) 78%,
+        var(--rechi-purple)
+    );
+    --color-surface-elevated: color-mix(
+        in srgb,
+        var(--rechi-ink) 58%,
+        var(--rechi-purple)
+    );
+    --color-text: var(--rechi-cream);
+    --color-text-muted: color-mix(in srgb, var(--rechi-cream) 72%, #8b7895);
+    --color-primary: var(--rechi-orange);
+    --color-accent: var(--rechi-gold);
+    --color-border: color-mix(in srgb, var(--rechi-purple) 64%, transparent);
+    --color-focus: var(--rechi-gold);
+    --color-danger: #f08267;
+    --color-brand-plate: var(--rechi-cream);
+    --shadow-color: 6 4 8;
+    color-scheme: dark;
+    background:
+        radial-gradient(
+            circle at top right,
+            color-mix(in srgb, var(--rechi-purple) 34%, transparent),
+            transparent 32rem
+        ),
+        var(--color-background);
+}
+
+.rechi-home ::selection {
+    background: var(--color-primary);
+    color: var(--rechi-cream);
+}
+
+.rechi-display {
+    font-family: Georgia, 'Times New Roman', ui-serif, serif;
+    letter-spacing: -0.035em;
+}
+
+.rechi-focus {
+    outline: 2px solid transparent;
+    outline-offset: 4px;
+}
+
+.rechi-focus:focus-visible {
+    outline-color: var(--color-focus);
+}
+
+.rechi-drawn-border {
+    border: 1.5px solid var(--color-border);
+    border-radius: 28px 18px 32px 20px;
+    box-shadow: 8px 8px 0 rgb(var(--shadow-color) / 0.13);
+}
+
+.rechi-mascot-float {
+    animation: rechi-mascot-float 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rechi-mascot-float {
+        animation: none;
+    }
+}
+
+@keyframes rechi-mascot-float {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0) rotate(-1deg);
+    }
+
+    50% {
+        transform: translate3d(0, -8px, 0) rotate(1.5deg);
+    }
+}
+
 @keyframes me-galaxy-drift {
     0%,
     100% {

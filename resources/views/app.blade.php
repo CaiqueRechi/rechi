@@ -22,17 +22,17 @@
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
+                background-color: #fff7d0;
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #1D161F;
             }
         </style>
 
-        <meta name="theme-color" content="#080a10">
-        <link rel="icon" href="/favicon.ico?v=cyber-garden" sizes="any">
-        <link rel="icon" href="/favicon.svg?v=cyber-garden" type="image/svg+xml">
+        <meta name="theme-color" content="#1D161F">
+        <link rel="icon" href="/brand/rechi-mascot.svg?v=rechi-cat" type="image/svg+xml">
+        <link rel="icon" href="/favicon.svg?v=rechi-cat" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=cyber-garden">
 
         @fonts

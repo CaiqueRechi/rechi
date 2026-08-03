@@ -1,4 +1,5 @@
 import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import {
     AlertTriangle,
     CheckCircle2,
@@ -9,7 +10,6 @@ import {
     Smartphone,
     Trash2,
 } from '@/components/bootstrap-icons';
-import { useState } from 'react';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
